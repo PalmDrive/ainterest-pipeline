@@ -87,4 +87,3 @@ def train_field(x_train, y_train, thread=4):
         b_field[i_d] = result[1]
 
     return w_field, b_field
-
