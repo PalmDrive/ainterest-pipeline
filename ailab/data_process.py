@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from request_mysql import request_mysql
+from ailab.db.db import *
 import numpy as np
 import jieba.analyse
 import progressbar
@@ -172,13 +172,13 @@ def divide_data(articles, labels, test_part):
     return x_train, y_train, x_test, y_test
 
 
-def get_data(requestfield='labelledField', test_mode=False, test_part=0.1):
+def get_data(requestfield='labelledField', test_part=0.1):
 
     # index for request field
     data_index = field_index(requestfield)
 
     # request articles and labels (format: string)
-    data0, articlesstr = request_mysql(requestfield, test_mode)
+    data0, articlesstr = medium_content_with(requestfield)
 
     # get labels for request field (format: string)
     labelsstr = get_labels(data0, data_index)

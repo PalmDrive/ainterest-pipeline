@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from matplotlib import pyplot as plt
-from algorithm import *
+from ailab.algo.algorithm import *
 # from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 

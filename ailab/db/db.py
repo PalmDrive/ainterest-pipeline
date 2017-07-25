@@ -1,16 +1,15 @@
 # -*- coding:utf-8 -*-
 import pymysql
-import yaml
 import progressbar
 import time
+from ailab.config import *
 
 
-def request_mysql(requestfield, test_mode):
+TEST_MODE = False
+
+
+def medium_content_with(requestfield):
     # load data from mySQL server
-
-    # load configuration
-    with open('mysql_config.yaml', 'r') as read_file:
-        config = yaml.load(read_file)
 
     # make a connection
     conn = pymysql.connect(host=config['host'], user=config['user'], passwd=config['passwd'],
@@ -28,7 +27,7 @@ def request_mysql(requestfield, test_mode):
     print('Successfully loaded basic data from the mySQL server. TIME: {0} s'.format(timeed - timest))
 
     # if test mode
-    if test_mode:
+    if TEST_MODE:
         data0 = (data0[0],)
 
     # obtain articles via article ID

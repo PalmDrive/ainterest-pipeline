@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
-from train import *
-from data_process import *
+from ailab.train import *
+from ailab.data_process import *
 
 # If plot
 IF_PLOT = True
@@ -8,9 +8,9 @@ IF_PLOT = True
 
 def main():
     # Get the data.
-    # x_train, y_train, x_test, y_test = get_data('labelledPosition', test_mode=False)
-    # x_train, y_train, x_test, y_test = get_data('labelledField', test_mode=False)
-    # x_train, y_train, x_test, y_test = get_data('labelledContentType', test_mode=False)
+    # x_train, y_train, x_test, y_test = get_data('labelledPosition')
+    # x_train, y_train, x_test, y_test = get_data('labelledField')
+    # x_train, y_train, x_test, y_test = get_data('labelledContentType')
     x_train, y_train, x_test, y_test = get_data_test(200, 20, 2000)  # very simple test data
     # x_train, y_train, x_test, y_test = get_data_file()
 

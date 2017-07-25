@@ -65,6 +65,154 @@ def shrink(y, nu):
     return x
 
 
+def train_label_dual_l1dcds(data_all):
+    # train model for each label
+    # method: dual coordinate descent with Random Permutation
+    # reference: A Dual Coordinate Descent Method for Large-scale Linear SVM [Hsieh et al, 2008, ICML]
+    # fast and available for high dimentional data
+    # we add a L1 penalty (SVMD not zero) in order to get a sparse weight vector
+    # it could take about 3 hours for training the whole field 'labelledField', if we set the err_loss to be 1e-6
+    # maybe we could consider the shrinking to speed up. reference: [Hsieh et al, 2008, ICML]
+
+    # data
+    x_train = data_all[0]
+    y_train = data_all[1]
+    label_id = data_all[2]
+    label_num = data_all[3]
+
+    print('Training process for label {0} in {1} begin.'.format(label_id + 1, label_num))
+
+    # train data
+    x_data = np.ones(shape=(x_train.shape[0], x_train.shape[1] + 1), dtype=np.float64)
+    x_data[:, :-1] = x_train
+    y_data = np.zeros(shape=y_train.shape[0], dtype=np.float64)
+    y_data[:] = y_train
+
+    # error
+    err_loss = 1e-8
+
+    # Ratio of the TRUE data
+    print('Ratio of True on train set: {0}, for label {1} in {2}'.format(y_data.mean(), label_id + 1, label_num))
+
+    # Convert labels to +1,-1
+    y_data[y_data == 0] = -1
+
+    # data size
+    size_data, size_dim = x_data.shape
+
+    # parameters
+    q_par = np.linalg.norm(x_data, ord=2, axis=1)**2
+    m_par = SVMD * np.ones(shape=size_dim, dtype=np.float64)
+    u_par = SVMC
+    zero_par = np.zeros(shape=size_data, dtype=np.float64)
+
+    # initialize variables
+    w_train = np.zeros(shape=size_dim, dtype=np.float64)
+    a_train = np.zeros(shape=size_data, dtype=np.float64)
+
+    # initial loss
+    svm_loss_old = loss_label(x_data, y_data, w_train, 0, zero_par)
+
+    # one key parameter
+    p_star = 0
+
+    old_list = list(range(size_data))
+
+    Mbar = np.Inf
+    mbar = -np.Inf
+    err_shrink = 1e-4
+
+    # train begin
+    count_epoch = 0
+    timest = time.time()
+
+    # train
+    while count_epoch < MAX_EPOCH:
+
+        M = 0
+        m = 0
+
+        new_list = old_list.copy()
+        new_list_shuffle = new_list.copy()
+        np.random.shuffle(new_list_shuffle)
+
+        for i_d in new_list_shuffle:
+            ai_old = a_train[i_d]
+            g = y_data[i_d] * np.dot(x_data[i_d], w_train) - 1
+            pg = 0
+            if ai_old == 0:
+                if g > Mbar:
+                    new_list.remove(i_d)
+                elif g < 0:
+                    pg = g
+            elif ai_old == u_par:
+                if g < mbar:
+                    new_list.remove(i_d)
+                elif g > 0:
+                    pg = g
+            else:
+                pg = g
+
+            M = np.maximum(M, g)
+            m = np.minimum(m, g)
+
+            if not np.abs(pg) == 0:
+                ai = np.minimum(np.maximum(ai_old - g / q_par[i_d], 0), u_par)
+                a_train[i_d] = ai
+                p_star -= (ai - ai_old) * y_data[i_d] * x_data[i_d]
+                p_train = np.minimum(np.maximum(p_star, -m_par), m_par)
+                w_train = p_train - p_star
+
+        old_list = new_list.copy()
+
+        if M - m < err_shrink:
+            if len(old_list) != size_data:
+                old_list = list(range(size_data))
+                Mbar = np.Inf
+                mbar = -np.Inf
+                continue
+
+        if M > 0:
+            Mbar = M
+        else:
+            Mbar = np.Inf
+
+        if m < 0:
+            mbar = m
+        else:
+            mbar = -np.Inf
+
+        count_epoch += 1
+
+        # calculate loss
+        if count_epoch % 10 == 0:
+            p_star = 0
+            for i_d in range(size_data):
+                p_star -= a_train[i_d] * y_data[i_d] * x_data[i_d]
+            p_train = np.minimum(np.maximum(p_star, -m_par), m_par)
+            w_train = p_train - p_star
+            svm_loss = loss_label(x_data, y_data, w_train, 0, zero_par)
+            if SHOW_LOSS:
+                print('Training loss for label {0} in {1}: {2}th epoch of {3} - {4}'
+                      .format(label_id + 1, label_num, count_epoch, MAX_EPOCH, svm_loss))
+
+            # if meet the accuracy condition
+            if np.abs(svm_loss - svm_loss_old) / np.minimum(svm_loss, svm_loss_old) < err_loss:
+                break
+
+            svm_loss_old = svm_loss
+    # end train
+
+    timeed = time.time()
+    print('Training process for label {0} in {1} has finished. Training time: {2} s'
+          .format(label_id + 1, label_num, timeed - timest))
+
+    b_train = w_train[-1]
+    w_train = w_train[:-1]
+
+    return [w_train, b_train]
+
+
 def train_label_dual_l1dcd(data_all):
     # train model for each label
     # method: dual coordinate descent with Random Permutation
