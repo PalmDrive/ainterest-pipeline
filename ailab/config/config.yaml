@@ -1,0 +1,7 @@
+---
+# configuration for a mySQL server
+host: '127.0.0.1'
+user: 'myaccount'
+passwd: 'mypassword'
+db: 'database'
+charset: 'specified'
