@@ -8,7 +8,7 @@ from ailab.config import *
 TEST_MODE = False
 
 
-def medium_content_with(requestfield):
+def medium_content_with(request_str):
     # load data from mySQL server
 
     # make a connection
@@ -21,7 +21,7 @@ def medium_content_with(requestfield):
 
     # select data from the mySQL server
     timest = time.time()
-    cur.execute('select * from medium where {0} is not null'.format(requestfield))
+    cur.execute('select * from medium where {0} is not null'.format(request_str))
     data0 = cur.fetchall()
     timeed = time.time()
     print('Successfully loaded basic data from the mySQL server. TIME: {0} s'.format(timeed - timest))

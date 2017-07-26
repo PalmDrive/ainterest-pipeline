@@ -4,22 +4,38 @@ import numpy as np
 import jieba.analyse
 import progressbar
 import time
+import csv
 
 
-def field_index(requestfield):
+def field_index_string(requestfield):
     # get the column index corresponding to the field
-    # all available fields
+    field_string_all = ['id', 'mediumType', 'link', 'title', 'summary', 'author',
+                        'source', 'keywords', 'labels', 'metaData', 'createdAt',
+                        'updatedAt', 'picurl', 'rating', 'ratingsCount', 'viewsCount',
+                        'publishedAt', 'algoRating', 'editorRating', 'topics',
+                        'featuredPicUrl', 'postedAt', 'group', 'authorId',
+                        'editorComment', 'relatedArticles', 'fields', 'positions',
+                        'tags', 'hidden', 'labelledField', 'labelledPosition',
+                        'labelledPerson', 'labelledCompany', 'labelledContentType',
+                        'labelledSentiment', 'simhash', 'contentTypes', 'sentiments',
+                        'video', 'duration', 'publishedAtBak']
+
+    # field, position, contentType, sentiment
     field_all = ['id', 'mediumType', 'link', 'title', 'summary', 'author',
                  'source', 'keywords', 'labels', 'metaData', 'createdAt',
                  'updatedAt', 'picurl', 'rating', 'ratingsCount', 'viewsCount',
                  'publishedAt', 'algoRating', 'editorRating', 'topics',
                  'featuredPicUrl', 'postedAt', 'group', 'authorId',
                  'editorComment', 'relatedArticles', 'fields', 'positions',
-                 'tags', 'hidden', 'labelledField', 'labelledPosition',
-                 'labelledPerson', 'labelledCompany', 'labelledContentType',
-                 'labelledSentiment', 'simhash', 'contentTypes', 'sentiments',
+                 'tags', 'hidden', 'field', 'position',
+                 'labelledPerson', 'labelledCompany', 'contentType',
+                 'sentiment', 'simhash', 'contentTypes', 'sentiments',
                  'video', 'duration', 'publishedAtBak']
-    return field_all.index(requestfield)
+
+    field_index = field_all.index(requestfield)
+    field_str = field_string_all[field_index]
+
+    return field_index, field_str
 
 
 def get_labels(data0, field_column):
@@ -57,17 +73,10 @@ def clear_invalid(articlesstr, labelsstr):
     return articlesstr, labelsstr
 
 
-def build_dictionary(articlesstr, labelsstr):
-    # map keywords to an array index
-    dict_article = dict()
-    dict_article_len = 0
-
-    # map label words to an array index
-    dict_label = dict()
-    dict_label_len = 0
+def articles_jieba(articlesstr):
+    # extract keywords from articles by using jieba package
 
     # store extracted keywords and weight from each article
-    # jieba package are used
     articlesjieba = list()
     time.sleep(0.1)
     jieba.analyse.extract_tags('Dummy')  # to show that the jieba package are successfully initialized
@@ -75,6 +84,32 @@ def build_dictionary(articlesstr, labelsstr):
 
     # number of keywords for each article
     topkwords = 100
+
+    print('extracting keywords...')
+    time.sleep(0.1)
+
+    bar = progressbar.ProgressBar()
+    for i_d in bar(range(len(articlesstr))):
+        # one article
+        article_str = articlesstr[i_d]
+        # extract keywords and corresponding weights for this article
+        article_jieba = jieba.analyse.extract_tags(article_str, topK=topkwords, withWeight=True)
+        articlesjieba.append(article_jieba)
+
+    time.sleep(0.1)
+    print('Successfully extract keywords.')
+
+    return articlesjieba
+
+
+def build_dictionary(articlesjieba, labelsstr):
+    # map keywords to an array index
+    dict_article = dict()
+    dict_article_len = 0
+
+    # map label words to an array index
+    dict_label = dict()
+    dict_label_len = 0
 
     print('building dictionaries...')
     time.sleep(0.1)
@@ -90,58 +125,87 @@ def build_dictionary(articlesstr, labelsstr):
                 dict_label_len += 1
 
         # dictionary for article keywords
-        article_str = articlesstr[i_d]
-        # extract keywords and corresponding weights for each article
-        article_jieba = jieba.analyse.extract_tags(article_str, topK=topkwords, withWeight=True)
+        article_jieba = articlesjieba[i_d]
         for wordjieba in article_jieba:
             if not dict_article.__contains__(wordjieba[0]):
                 dict_article[wordjieba[0]] = dict_article_len
                 dict_article_len += 1
-        articlesjieba.append(article_jieba)
 
     time.sleep(0.1)
     print('Successfully built dictionaries.')
 
-    return dict_article, dict_label, articlesjieba
+    return dict_article, dict_label
 
 
-def prepare_data(dict_article, dict_label, articlesjieba, labelsstr):
+def string_to_matrix_article(dict_article, articlesjieba):
     # map keywords to float based on dictionaries
 
     size_dict_article = len(dict_article)
+    size_data = len(articlesjieba)
+
+    # each row represents an article, and each column represents a keyword
+    articles = np.zeros(shape=(size_data, size_dict_article), dtype=np.float64)
+
+    article = np.zeros(shape=(1, size_dict_article), dtype=np.float64)
+
+    for i_d in range(size_data):
+        article[:] = 0
+        # wordjieba[0] is the keyword, and wordjieba[1] is the weight
+        for wordjieba in articlesjieba[i_d]:
+            if dict_article.__contains__(wordjieba[0]):
+                # article[0, dict_article[wordjieba[0]]] = wordjieba[1]
+                article[0, dict_article[wordjieba[0]]] = 1  # ignore weight
+        articles[i_d] = article
+
+    print('Successfully prepared article data.')
+
+    return articles
+
+
+def string_to_matrix_label(dict_label, labelsstr):
+    # map keywords to float based on dictionaries
+
     size_dict_label = len(dict_label)
     size_data = len(labelsstr)
 
-    # each row represents an article, and each column represents a keyword
-    # data set contains keyword weights for each article
-    # zero means that this keyword is not shown for this article
-    articles = np.zeros(shape=(size_data, size_dict_article), dtype=np.float64)
-
     # each row represents an article, and each column represents a label
-    # label set contains true labels for each article
-    # one (zero) means that this article does (not) belong to this label
     labels = np.zeros(shape=(size_data, size_dict_label), dtype=np.float64)
 
-    article = np.zeros(shape=(1, size_dict_article), dtype=np.float64)
     label = np.zeros(shape=(1, size_dict_label), dtype=np.float64)
 
     for i_d in range(size_data):
-
-        article[:] = 0
-        for wordjieba in articlesjieba[i_d]:
-            # wordjieba[0] is the keyword, and wordjieba[1] is the weight
-            # article[0, dict_article[wordjieba[0]]] = wordjieba[1]
-            article[0, dict_article[wordjieba[0]]] = 1  # ignore weight
-        articles[i_d] = article
-
         label[:] = 0
         for label_str in labelsstr[i_d]:
-            label[0, dict_label[label_str]] = 1
+            if dict_label.__contains__(label_str):
+                label[0, dict_label[label_str]] = 1
         labels[i_d] = label
 
-    print('Successfully prepared data set.')
+    print('Successfully prepared label data.')
 
-    return articles, labels
+    return labels
+
+
+def matrix_to_string_label(dict_label, labels):
+    # map keywords to float based on dictionaries
+
+    size_data, size_label = labels.shape
+
+    dict_label_list = list(dict_label.keys())
+
+    # labels
+    labelsstr = []
+
+    for i_d in range(size_data):
+        label = labels[i_d]
+        label_str = []
+        for j_d in range(size_label):
+            if label[j_d] == 1:
+                label_str.append(dict_label_list[j_d])
+        labelsstr.append(label_str)
+
+    print('Successfully convert label data from matrix to string.')
+
+    return labelsstr
 
 
 def divide_data(articles, labels, test_part):
@@ -172,13 +236,62 @@ def divide_data(articles, labels, test_part):
     return x_train, y_train, x_test, y_test
 
 
-def get_data(requestfield='labelledField', test_part=0.1):
+def save_dictionary(dict_article, dict_label, requestfield):
+    # save dictionaries
+    outputdir = "../output/"
+    outputpath = outputdir + requestfield + "_dict_"
+
+    fieldnames = ['keywords', 'index']
+
+    with open(outputpath + "article.txt", "w") as fwright:
+        writer = csv.DictWriter(fwright, fieldnames=fieldnames)
+        writer.writeheader()
+        for key, val in dict_article.items():
+            writer.writerow({fieldnames[0]: key, fieldnames[1]: val})
+
+    with open(outputpath + "label.txt", "w") as fwright:
+        writer = csv.DictWriter(fwright, fieldnames=fieldnames)
+        writer.writeheader()
+        for key, val in dict_label.items():
+            writer.writerow({fieldnames[0]: key, fieldnames[1]: val})
+
+    print(print('Successfully saved dictionaries.'))
+
+
+def load_dictionary(requestfield):
+    # save dictionaries
+    dictdir = "../output/"
+    dictpath = dictdir + requestfield + "_dict_"
+
+    fieldnames = ['keywords', 'index']
+
+    dict_article = dict()
+    dict_label = dict()
+
+    with open(dictpath + "article.txt", "r") as fread:
+        reader = csv.DictReader(fread)
+        for row in reader:
+            dict_article[row[fieldnames[0]]] = eval(row[fieldnames[1]])
+
+    with open(dictpath + "label.txt", "r") as fread:
+        reader = csv.DictReader(fread)
+        for row in reader:
+            dict_label[row[fieldnames[0]]] = eval(row[fieldnames[1]])
+
+    print('Successfully loaded dictionaries.')
+
+    return dict_article, dict_label
+
+
+def get_data(requestfield='field', test_part=0.1):
 
     # index for request field
-    data_index = field_index(requestfield)
+    data_index, field_str = field_index_string(requestfield)
+
+    # field string
 
     # request articles and labels (format: string)
-    data0, articlesstr = medium_content_with(requestfield)
+    data0, articlesstr = medium_content_with(field_str)
 
     # get labels for request field (format: string)
     labelsstr = get_labels(data0, data_index)
@@ -186,12 +299,18 @@ def get_data(requestfield='labelledField', test_part=0.1):
     # clear invalid data
     articlesstr, labelsstr = clear_invalid(articlesstr, labelsstr)
 
+    # extract keywords from articles
+    articlesjieba = articles_jieba(articlesstr)
+
     # build dictionaries so that keywords and labels could be mapped to a float number
-    dict_article, dict_label, articlesjieba = build_dictionary(articlesstr, labelsstr)
+    dict_article, dict_label = build_dictionary(articlesjieba, labelsstr)
+
+    # save data
+    save_dictionary(dict_article, dict_label, requestfield)
 
     # convert string data to float matrix
-    # the data set
-    articles, labels = prepare_data(dict_article, dict_label, articlesjieba, labelsstr)
+    articles = string_to_matrix_article(dict_article, articlesjieba)
+    labels = string_to_matrix_label(dict_label, labelsstr)
 
     # divide data set into train and test set
     x_train, y_train, x_test, y_test = divide_data(articles, labels, test_part)
@@ -229,22 +348,8 @@ def get_data_test(trainnum=10000, testnum=1000, datadim=100):
 
 def get_data_file():
     # load data from a file
+    # unfinished
 
-    with open('labelledField_dict_article.txt', 'r') as read_file:
-        tmp = read_file.read()
-    dict_article = eval(tmp)
-    with open('labelledField_dict_label.txt', 'r') as read_file:
-        tmp = read_file.read()
-    dict_label = eval(tmp)
-    with open('labelledField_articlesjieba.txt', 'r') as read_file:
-        tmp = read_file.read()
-    articlesjieba = eval(tmp)
-    with open('labelledField_labelsstr.txt', 'r') as read_file:
-        tmp = read_file.read()
+    articlesstr = ['这是一篇示例文章', '还有一篇文章，测试']
 
-    labelsstr = eval(tmp)
-
-    articles, labels = prepare_data(dict_article, dict_label, articlesjieba, labelsstr)
-    x_train, y_train, x_test, y_test = divide_data(articles, labels, test_part=0.1)
-
-    return x_train, y_train, x_test, y_test
+    return articlesstr

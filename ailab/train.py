@@ -47,6 +47,24 @@ def data_plot(y_train, y_test, y_train_pred, y_test_pred):
     plt.show()
 
 
+def train_label(data_all):
+    # train model for each label
+
+    # data
+    x_train = data_all[0]
+    y_train = data_all[1]
+    label_id = data_all[2]
+    label_num = data_all[3]
+
+    # w_train, b_train = prim_tf(x_train, y_train, label_id, label_num)
+    # w_train, b_train = prim_admm(x_train, y_train, label_id, label_num)
+    # w_train, b_train = dual_dcd(x_train, y_train, label_id, label_num)
+    w_train, b_train = dual_l1dcd(x_train, y_train, label_id, label_num)
+    # w_train, b_train = dual_l1dcd_test(x_train, y_train, label_id, label_num)
+
+    return [w_train, b_train]
+
+
 def train_field(x_train, y_train, thread=4):
     # Get the shape of the data.
     num_features = x_train.shape[1]
@@ -68,10 +86,7 @@ def train_field(x_train, y_train, thread=4):
     pool = ThreadPool(thread)
 
     # train each label
-    # results = pool.map(train_label_prim_tf, data_all_list)
-    # results = pool.map(train_label_prim_admm, data_all_list)
-    # results = pool.map(train_label_dual_dcd, data_all_list)
-    results = pool.map(train_label_dual_l1dcd, data_all_list)
+    results = pool.map(train_label, data_all_list)
 
     # close the pool
     pool.close()

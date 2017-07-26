@@ -14,14 +14,13 @@ IF_PLOT = True
 
 def main():
     # requested
-    request = 'field'
+    request = 'contentType'
 
     # Get data
     x_train, y_train, x_test, y_test = get_data(request)
-    # x_train, y_train, x_test, y_test = get_data_test(100, 20, 500)
 
     # train
-    w, b = train_field(x_train, y_train, thread=6)
+    w, b = train_field(x_train, y_train, thread=8)
 
     if IF_SAVE:
         np.savetxt("../output/" + request + "_w_train.txt", w)
