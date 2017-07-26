@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7a9a9638-17d5-46f0-bbb4-6616c9b5b01d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.gitignore" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ailab/algo/algorithm.py" afterPath="$PROJECT_DIR$/ailab/algo/algorithm.py" />
+    <list default="true" id="3644dad7-1c26-445f-bda4-976230e91365" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/terminal.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ailab/tasks/contentType_class_task.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ailab/tasks/contentType_predict_task.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ailab/tasks/field_class_task.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ailab/tasks/field_predict_task.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ailab/tasks/position_class_task.py" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ailab/config/__init__.py" afterPath="$PROJECT_DIR$/ailab/config/__init__.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ailab/data_process.py" afterPath="$PROJECT_DIR$/ailab/data_process.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ailab/db/db.py" afterPath="$PROJECT_DIR$/ailab/db/db.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ailab/tasks/field_class_task.py" afterPath="$PROJECT_DIR$/ailab/tasks/field_class_task.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ailab/train.py" afterPath="$PROJECT_DIR$/ailab/train.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ailab/output/field_b_train.txt" afterPath="$PROJECT_DIR$/ailab/output/field_b_train.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ailab/output/field_w_train.txt" afterPath="$PROJECT_DIR$/ailab/output/field_w_train.txt" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -18,13 +24,52 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="600">
       <file leaf-file-name="field_class_task.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ailab/tasks/field_class_task.py">
+        <entry file="file://$PROJECT_DIR$/ailab/tasks/field/field_class_task.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="468">
-              <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="429">
+              <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+              <folding>
+                <element signature="e#199#1043#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="db.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ailab/db/db.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="273">
+              <caret line="10" column="37" lean-forward="false" selection-start-line="10" selection-start-column="37" selection-end-line="10" selection-end-column="37" />
+              <folding>
+                <element signature="e#160#1671#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data_process.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ailab/data_process.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="942">
+              <caret line="259" column="0" lean-forward="true" selection-start-line="259" selection-start-column="0" selection-end-line="259" selection-end-column="0" />
+              <folding>
+                <element signature="e#175#1897#0" expanded="false" />
+                <element signature="e#1942#2312#0" expanded="false" />
+                <element signature="e#2362#2727#0" expanded="false" />
+                <element signature="e#2767#3618#0" expanded="false" />
+                <element signature="e#3673#4617#0" expanded="false" />
+                <element signature="e#4683#5513#0" expanded="false" />
+                <element signature="e#5571#6198#0" expanded="false" />
+                <element signature="e#6253#6757#0" expanded="false" />
+                <element signature="e#6810#7879#0" expanded="false" />
+                <element signature="e#7947#8679#0" expanded="false" />
+                <element signature="e#8721#9379#0" expanded="false" />
+                <element signature="e#9438#10512#0" expanded="false" />
+                <element signature="e#10581#11319#0" expanded="false" />
+                <element signature="e#11347#11456#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -37,16 +82,13 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/ailab/db/db.py" />
-        <option value="$PROJECT_DIR$/ailab/train.py" />
+        <option value="$PROJECT_DIR$/ailab/tasks/contentType/contentType_class_task.py" />
         <option value="$PROJECT_DIR$/ailab/data_process.py" />
-        <option value="$PROJECT_DIR$/ailab/tasks/field_class_task.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="51" />
-    <option name="y" value="148" />
+    <option name="x" value="267" />
     <option name="width" value="3265" />
     <option name="height" value="1935" />
   </component>
@@ -125,6 +167,46 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="tasks" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="field" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ailingual_pipeline" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ailingual_pipeline" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ailab" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="db" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ailingual_pipeline" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ailingual_pipeline" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ailab" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="config" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -134,16 +216,8 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-  </component>
-  <component name="PyConsoleOptionsProvider">
-    <option name="myPythonConsoleState">
-      <console-settings sdk-home="/usr/bin/python3.6" working-directory="$PROJECT_DIR$/../../../Python/Working">
-        <option name="mySdkHome" value="/usr/bin/python3.6" />
-        <option name="myWorkingDirectory" value="$PROJECT_DIR$/../../../Python/Working" />
-      </console-settings>
-    </option>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -158,6 +232,24 @@
     </option>
   </component>
   <component name="RunManager" selected="Python.field_class_task">
+    <configuration default="false" name="contentType_class_task" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ailab/tasks/contentType" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ailingual_pipeline" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ailab/tasks/contentType/contentType_class_task.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
     <configuration default="false" name="field_class_task" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -165,12 +257,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ailab/tasks" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ailab/tasks/field" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="ailingual_pipeline" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ailab/tasks/field_class_task.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ailab/tasks/field/field_class_task.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -240,12 +332,14 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="Python.field_class_task" />
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="Python.contentType_class_task" />
+      <item index="1" class="java.lang.String" itemvalue="Python.field_class_task" />
     </list>
     <recent_temporary>
-      <list size="1">
+      <list size="2">
         <item index="0" class="java.lang.String" itemvalue="Python.field_class_task" />
+        <item index="1" class="java.lang.String" itemvalue="Python.contentType_class_task" />
       </list>
     </recent_temporary>
   </component>
@@ -254,17 +348,16 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="7a9a9638-17d5-46f0-bbb4-6616c9b5b01d" name="Default" comment="" />
-      <created>1500952506162</created>
+      <changelist id="3644dad7-1c26-445f-bda4-976230e91365" name="Default" comment="" />
+      <created>1501054177669</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1500952506162</updated>
+      <updated>1501054177669</updated>
     </task>
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="51" y="148" width="3265" height="1935" extended-state="0" />
-    <editor active="true" />
+    <frame x="267" y="0" width="3265" height="1935" extended-state="0" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24992342" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -273,7 +366,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.45140514" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -290,39 +383,29 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/ailab/tasks/field_class_task.py">
+    <entry file="file://$PROJECT_DIR$/ailab/tasks/field/field_class_task.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ailab/data_process.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="39">
-          <caret line="5" column="11" lean-forward="true" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
+        <state relative-caret-position="429">
+          <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding>
-            <element signature="e#23#48#0" expanded="false" />
+            <element signature="e#199#1043#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ailab/train.py">
+    <entry file="file://$PROJECT_DIR$/ailab/db/db.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="5" column="0" lean-forward="true" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ailab/algo/algorithm.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="78">
-          <caret line="4" column="0" lean-forward="true" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+        <state relative-caret-position="273">
+          <caret line="10" column="37" lean-forward="false" selection-start-line="10" selection-start-column="37" selection-end-line="10" selection-end-column="37" />
+          <folding>
+            <element signature="e#160#1671#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -333,32 +416,61 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ailab/tasks/contentType/contentType_class_task.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1014">
+          <caret line="27" column="0" lean-forward="true" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ailab/db/db.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="78">
-          <caret line="5" column="0" lean-forward="true" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+        <state relative-caret-position="273">
+          <caret line="10" column="37" lean-forward="false" selection-start-line="10" selection-start-column="37" selection-end-line="10" selection-end-column="37" />
+          <folding>
+            <element signature="e#160#1671#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ailab/data_process.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="942">
+          <caret line="259" column="0" lean-forward="true" selection-start-line="259" selection-start-column="0" selection-end-line="259" selection-end-column="0" />
+          <folding>
+            <element signature="e#175#1897#0" expanded="false" />
+            <element signature="e#1942#2312#0" expanded="false" />
+            <element signature="e#2362#2727#0" expanded="false" />
+            <element signature="e#2767#3618#0" expanded="false" />
+            <element signature="e#3673#4617#0" expanded="false" />
+            <element signature="e#4683#5513#0" expanded="false" />
+            <element signature="e#5571#6198#0" expanded="false" />
+            <element signature="e#6253#6757#0" expanded="false" />
+            <element signature="e#6810#7879#0" expanded="false" />
+            <element signature="e#7947#8679#0" expanded="false" />
+            <element signature="e#8721#9379#0" expanded="false" />
+            <element signature="e#9438#10512#0" expanded="false" />
+            <element signature="e#10581#11319#0" expanded="false" />
+            <element signature="e#11347#11456#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ailab/config/config.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="7" column="0" lean-forward="true" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../../Python/Project/PalmDrive/ailingual_pipeline/ailab/tasks/field_class_task.py">
-      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ailab/tasks/field_class_task.py">
+    <entry file="file://$PROJECT_DIR$/ailab/tasks/field/field_class_task.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
-          <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="429">
+          <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+          <folding>
+            <element signature="e#199#1043#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>

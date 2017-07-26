@@ -238,7 +238,7 @@ def divide_data(articles, labels, test_part):
 
 def save_dictionary(dict_article, dict_label, requestfield):
     # save dictionaries
-    outputdir = "../output/"
+    outputdir = "../../output/"
     outputpath = outputdir + requestfield + "_dict_"
 
     fieldnames = ['keywords', 'index']
@@ -260,7 +260,7 @@ def save_dictionary(dict_article, dict_label, requestfield):
 
 def load_dictionary(requestfield):
     # save dictionaries
-    dictdir = "../output/"
+    dictdir = "../../output/"
     dictpath = dictdir + requestfield + "_dict_"
 
     fieldnames = ['keywords', 'index']
