@@ -102,4 +102,4 @@ ENV/
 .mypy_cache/
 
 # ailab output
-# /ailab/output/*
+/ailab/output/*
