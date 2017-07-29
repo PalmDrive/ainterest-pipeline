@@ -8,5 +8,5 @@ class ContentTypeClass(MultiClass):
     __model_dir = "../../output/"
 
     def classify(self, articlesstr):
-        labelsstr = MultiClass.multi_classify(articlesstr, self.__request, self.__model_dir)
+        labelsstr = MultiClass.multi_classify(self, articlesstr, self.__request, self.__model_dir)
         return labelsstr
