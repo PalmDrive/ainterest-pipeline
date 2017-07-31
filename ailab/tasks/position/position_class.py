@@ -1,13 +1,13 @@
 # -*- coding:utf-8 -*-
-import ailab.tasks
 from ailab.tasks.multi_tasks import *
 
 
 class PositionClass(MultiClass):
 
-    __request = 'position'
-    __model_dir = ailab.tasks.MODEL_DIR
+    def __init__(self, model_dir="../../output/"):
+        self.__request = 'position'
+        self.__model_dir = model_dir
 
     def classify(self, articlesstr):
-        labelsstr = MultiClass.multi_classify(articlesstr, self.__request, self.__model_dir)
+        labelsstr = MultiClass.multi_classify(self, articlesstr, self.__request, self.__model_dir)
         return labelsstr
