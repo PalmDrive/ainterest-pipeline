@@ -1,19 +1,39 @@
 # -*- coding:utf-8 -*-
-from ailab.tasks.position.position_class import *
+from ailab.tasks.position.position_class import PositionClass
 
 
 def main():
-    # Get data
+    # data
     # articlesstr = get_data_file()
     articlesstr_1 = 'This is a good classifier.'
     articlesstr_2 = ['This is a good classifier.', '也可以处理列表']
 
     # class
-    aclass = PositionClass()
+    a = PositionClass()
+
+    a.algorithm('l1dcd')
 
     # classify
-    aclass.classify(articlesstr_1)
-    aclass.classify(articlesstr_2)
+    b1 = a.classify(articlesstr_1)
+    b2 = a.classify(articlesstr_2)
+
+    a.algorithm('libsvm')
+
+    # classify
+    b3 = a.classify(articlesstr_1)
+    b4 = a.classify(articlesstr_2)
+
+    print("\n")
+    print('l1dcd:')
+    print(b1)
+    print(b2)
+    print("\n")
+
+    print("\n")
+    print('LIBSVM:')
+    print(b3)
+    print(b4)
+    print("\n")
 
 
 if __name__ == '__main__':

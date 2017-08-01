@@ -1,10 +1,13 @@
 # -*- coding:utf-8 -*-
-from ailab.tasks.multi_tasks import *
+from ailab.tasks.multi_tasks import MultiClass
 
 
 class FieldClass(MultiClass):
 
     def __init__(self, model_dir="../../output/"):
+        MultiClass.__init__(self)
+
+        # not editable
         self.__request = 'field'
         self.__model_dir = model_dir
 
