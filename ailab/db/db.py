@@ -8,13 +8,30 @@ from ailab.config import *
 TEST_MODE = False
 
 
-def medium_content_with(request_str):
+def medium_content_with(request_str, config=None):
     # load data from mySQL server
 
+    if config is None:
+        config = config_load
+
     # make a connection
-    conn = pymysql.connect(host=config['host'], user=config['user'], passwd=config['passwd'],
-                           db=config['db'], charset=config['charset'])
-    print('Successfully connected to the mySQL server.')
+    try:  # if succeed
+        conn = pymysql.connect(host=config['host'], user=config['user'],
+                               passwd=config['passwd'], db=config['db'])
+        print('Successfully connected to the mySQL server.')
+
+    except pymysql.Error as error:
+        # if failed: print error message
+        code, message = error.args
+        print(code, message)
+        print('Connecting to the mySQL server failed. Invalid configuration.')
+
+        # return empty results
+        data0 = []
+        articlesstr = []
+        err = True
+
+        return data0, articlesstr, err
 
     # get a cursor
     cur = conn.cursor()
@@ -59,4 +76,6 @@ def medium_content_with(request_str):
     conn.close()
     print('mySQL server closed.')
 
-    return data0, articlesstr
+    err = False
+
+    return data0, articlesstr, err
