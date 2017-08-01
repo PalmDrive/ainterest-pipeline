@@ -19,7 +19,7 @@ class MultiClass:
     def __init__(self):
 
         # algorithm
-        self.__algo = 'libsvm'
+        self.__algo = 'l1dcd'
 
         # If load dictionary
         self.__if_load_dict = False
@@ -135,8 +135,8 @@ class MultiTrain:
     def __init__(self):
 
         # connect config
-        self.__config = {'host': '127.0.0.1', 'user': 'myaccount',
-                         'passwd': 'mypassword', 'db': 'database'}
+        self.__config = {'host': '127.0.0.1', 'user': 'myaccount', 'passwd': 'mypassword',
+                         'db': 'database', 'charset': 'utf8'}
 
         # algorithm
         self.__algo = 'l1dcd'
@@ -178,7 +178,7 @@ class MultiTrain:
 
         # Get data
         if not self.__if_has_load_data:
-            x_train, y_train, x_test, y_test, err_get = get_data(request, self.__config, self.__config)
+            x_train, y_train, x_test, y_test, err_get = get_data(request, self.__config)
             # x_train, y_train, x_test, y_test, err_get = get_data_test(200, 20, 60620, 36)  # very simple test data
             # x_train, y_train, x_test, y_test = get_data_file()
 

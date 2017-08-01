@@ -16,8 +16,8 @@ def medium_content_with(request_str, config=None):
 
     # make a connection
     try:  # if succeed
-        conn = pymysql.connect(host=config['host'], user=config['user'],
-                               passwd=config['passwd'], db=config['db'])
+        conn = pymysql.connect(host=config['host'], user=config['user'], passwd=config['passwd'],
+                               db=config['db'], charset=config['charset'])
         print('Successfully connected to the mySQL server.')
 
     except pymysql.Error as error:

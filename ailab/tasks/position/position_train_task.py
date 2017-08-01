@@ -6,8 +6,8 @@ def main():
     # class
     a = PositionTrain()
 
-    a.connect({'host': '127.0.0.1', 'user': 'user',
-               'passwd': 'passwd', 'db': 'db'})
+    a.connect({'host': '127.0.0.1', 'user': 'myaccount', 'passwd': 'mypassword',
+               'db': 'database', 'charset': 'utf8'})
 
     # algorithm
     a.algorithm('l1dcd')
