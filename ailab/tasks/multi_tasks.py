@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from ailab.train import *
 from ailab.data_process import *
+import glob
 
 
 # If save data
@@ -10,16 +11,33 @@ IF_SAVE = False
 IF_SHOW_RESULT = True
 
 # If plot
-IF_PLOT = True
+IF_PLOT = False
 
 
 class MultiClass:
 
-    # If show results
-    if_show_result = IF_SHOW_RESULT
+    def __init__(self):
+
+        # algorithm
+        self.__algo = 'l1dcd'
+
+        # If load dictionary
+        self.__if_load_dict = False
+
+        # If load model
+        self.__if_load_model = False
+
+        # dictionaries
+        self.__dict_article = dict()
+        self.__dict_label = dict()
+
+        # trained model
+        self.__model_list = []
+
+        # If show classified results
+        self.__if_show = IF_SHOW_RESULT
 
     def multi_classify(self, articlesstr_in, request, model_dir):
-
         # request = 'field', 'contentType', 'position'
 
         is_str = isinstance(articlesstr_in, str)
@@ -30,75 +48,256 @@ class MultiClass:
             articlesstr = articlesstr_in[:]
 
         # load dictionaries
-        dict_article, dict_label = load_dictionary(request)
+        if not self.__if_load_dict:
+            dict_article, dict_label = load_dictionary(request)
+
+            if len(dict_article) == 0 or len(dict_label) == 0:
+                return []
+
+            self.__dict_article = dict_article
+            self.__dict_label = dict_label
+
+            del dict_article
+            del dict_label
+
+            self.__if_load_dict = True
+
+        # load model
+        if not self.__if_load_model:
+
+            # if model exist
+            filename_all_chaotic = glob.glob(model_dir + request + "/*." + self.__algo)
+            if len(filename_all_chaotic) == 0:
+                print('Model for algorithm {0} does not exist yet. Train it if needed.'.format(self.__algo))
+                return []
+
+            # load trained model
+            if self.__algo == 'libsvm':
+                model_num = len(filename_all_chaotic)
+                model_list = []
+                for i_d in range(model_num):
+                    model_i = svm_load_model(model_dir + request + "/model_{0}.".format(i_d) + self.__algo)
+                    model_list.append(model_i)
+            else:
+                w = np.loadtxt(model_dir + request + "/w_train." + self.__algo)
+                b = np.loadtxt(model_dir + request + "/b_train." + self.__algo)
+                model_list = [w, b]
+
+            self.__model_list = model_list
+
+            # delete
+            del model_list
+
+            self.__if_load_model = True
 
         # extract keywords
         articlesjieba = articles_jieba(articlesstr)
 
         # convert string data to matrix
-        x_data = string_to_matrix_article(dict_article, articlesjieba)
+        x_data = string_to_matrix_article(self.__dict_article, articlesjieba)
 
-        # load trained model
-        w = np.loadtxt(model_dir + request + "_w_train.txt")
-        b = np.loadtxt(model_dir + request + "_b_train.txt")
-
-        # train results evaluation
-        y_pred = predict(x_data, w, b)
+        # classification
+        y_pred = predict(x_data, self.__model_list, self.__algo)
 
         # get labels
-        labelsstr = matrix_to_string_label(dict_label, y_pred)
+        labelsstr = matrix_to_string_label(self.__dict_label, y_pred)
+
+        # print classification results
+        if self.__if_show:
+            for i_d in range(len(labelsstr)):
+                print(i_d, ':', labelsstr[i_d])
 
         if is_str:
             labelsstr_out = labelsstr[0]
         else:
             labelsstr_out = labelsstr[:]
 
-        if self.if_show_result:
-            for i_d in range(len(labelsstr)):
-                print(i_d, ':', labelsstr[i_d])
-
         return labelsstr_out
+
+    def algorithm(self, algo):
+        # available algorithm
+        algo_available = ['libsvm', 'l1dcd', 'dcd', 'admm']
+
+        # if invalid
+        if not (algo in algo_available):
+            print('Unsupported algorithm.')
+            print('Training process halted.')
+            return []
+
+        # reset model
+        self.__algo = algo
+        self.__if_load_model = False
+        self.__model_list = []
 
 
 class MultiTrain:
 
-    # If save data
-    if_save = IF_SAVE
+    def __init__(self):
 
-    # If show results
-    if_show_result = IF_SHOW_RESULT
+        # connect config
+        self.__config = {'host': '127.0.0.1', 'user': 'myaccount', 'passwd': 'mypassword',
+                         'db': 'database', 'charset': 'utf8'}
 
-    # If plot
-    if_plot = IF_PLOT
+        # algorithm
+        self.__algo = 'l1dcd'
+
+        # parameters
+        self.param = {'libsvm': '-t 2 -c 5', 'C': 20, 'D': 5, 'max_epoch': 10000, 'err': 1e-3}
+
+        # options
+        self.options = {'thread': 2}
+
+        # If has trained
+        self.__if_has_trained = False
+
+        # If has load data
+        self.__if_has_load_data = False
+
+        # data
+        self.__x_train = []
+        self.__y_train = []
+        self.__x_test = []
+        self.__y_test = []
+
+        # trained model
+        self.__model_list = []
+
+        # model prediction
+        self.__y_train_pred = []
+        self.__y_test_pred = []
+
+        # If save after training
+        self.__if_save = IF_SAVE
+
+        # If save after training
+        self.__if_plot = IF_PLOT
 
     def multi_train(self, request, output_dir):
 
         # request = 'field', 'contentType', 'position'
 
         # Get data
-        x_train, y_train, x_test, y_test = get_data(request)
+        if not self.__if_has_load_data:
+            x_train, y_train, x_test, y_test, err_get = get_data(request, self.__config)
+            # x_train, y_train, x_test, y_test, err_get = get_data_test(200, 20, 60620, 36)  # very simple test data
+            # x_train, y_train, x_test, y_test = get_data_file()
 
-        # Or:
-        # x_train, y_train, x_test, y_test = get_data_test(200, 20, 1000)  # very simple test data
-        # x_train, y_train, x_test, y_test = get_data_file()
+            # if error
+            if err_get:
+                print('Encountered an error when requesting data from the mySQL server.')
+                print('Training ended.')
+                return
+
+            # save data to self
+            self.__x_train = x_train
+            self.__y_train = y_train
+            self.__x_test = x_test
+            self.__y_test = y_test
+
+            # delete
+            del x_train
+            del y_train
+            del x_test
+            del y_test
+
+            self.__if_has_load_data = True
 
         # train
-        w, b = train_field(x_train, y_train, thread=6)
+        model_list = train_field(self.__x_train, self.__y_train, algo=self.__algo,
+                                 param=self.param, thread=self.options['thread'])
 
-        if self.if_save:
-            np.savetxt(output_dir + request + "_w_train.txt", w)
-            np.savetxt(output_dir + request + "_b_train.txt", b)
+        if len(model_list) == 0:
+            # if training is invalid
+            print('Training process returned invalid results.')
+            print('Training ended.')
+            return
 
-        # train results evaluation
-        y_train_pred = predict(x_train, w, b)
-        y_test_pred = predict(x_test, w, b)
-        print("Accuracy on train:", accuracy(y_train, y_train_pred))
-        print("Accuracy on test:", accuracy(y_test, y_test_pred))
+        # here training is already OK
+        self.__if_has_trained = True
 
-        if self.if_show_result:
-            print('w:\n', w)
-            print('b:\n', b)
-            print('norm(w):\n', np.linalg.norm(w, ord=2, axis=0))
+        # save model to self
+        self.__model_list = model_list
 
-        if self.if_plot:
-            data_plot(y_train, y_test, y_train_pred, y_test_pred)
+        # delete
+        del model_list
+
+        # model evaluation on train set.
+        print('evaluating model on train set...')
+        y_train_pred = predict(self.__x_train, self.__model_list, self.__algo)
+        print("Accuracy on train:", accuracy(self.__y_train, y_train_pred))
+
+        # model evaluation on test set.
+        print('evaluating model on test set...')
+        y_test_pred = predict(self.__x_test, self.__model_list, self.__algo)
+        print("Accuracy on test:", accuracy(self.__y_test, y_test_pred))
+
+        # save prediction to self
+        self.__y_train_pred = y_train_pred
+        self.__y_test_pred = y_test_pred
+
+        # delete
+        del y_train_pred
+        del y_test_pred
+
+        # if save model
+        if self.__if_save:
+            self.multi_save(request, output_dir)
+
+        # if plot training results
+        if self.__if_plot:
+            self.plot()
+
+    def connect(self, config):
+        for key in config:
+            self.__config[key] = config[key]
+
+        # try to make a connection
+        try:  # if succeed
+            conn = pymysql.connect(host=config['host'], user=config['user'],
+                                   passwd=config['passwd'], db=config['db'])
+            conn.close()
+            print('Connection is OK.')
+
+        except pymysql.Error as error:
+            # if failed: print error message
+            code, message = error.args
+            print(code, message)
+            print('Connection is Invalid.')
+
+    def algorithm(self, algo):
+        # available algorithm
+        algo_available = ['libsvm', 'l1dcd', 'dcd', 'admm']
+
+        if not (algo in algo_available):
+            print('Unsupported algorithm.')
+            print('Training process halted.')
+            return []
+
+        self.__algo = algo
+        self.__if_has_trained = False
+        self.__model_list = []
+        self.__y_train_pred = []
+        self.__y_test_pred = []
+
+    def thread(self, thread):
+        self.options['thread'] = thread
+
+    def multi_save(self, request, output_dir):
+
+        # if has not trained
+        if not self.__if_has_trained:
+            print('Has not trained a model.')
+            print('Nothing to do.')
+            return
+
+        save_model(self.__model_list, self.__algo, request, output_dir)
+
+    def plot(self):
+
+        # if has not trained
+        if not self.__if_has_trained:
+            print('Has not trained a model.')
+            print('Nothing to do.')
+            return
+
+        data_plot(self.__y_train, self.__y_test, self.__y_train_pred, self.__y_test_pred)

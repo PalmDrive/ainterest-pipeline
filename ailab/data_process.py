@@ -5,6 +5,7 @@ import jieba.analyse
 import progressbar
 import time
 import csv
+import glob
 
 
 def field_index_string(requestfield):
@@ -43,14 +44,35 @@ def get_labels(data0, field_column):
     # get labels for request field
     labelsstr = []
 
+    # invalid label
+    invalid_label = ['n', 'u', 'l', '[', ']']
+    invalid_len = len(invalid_label)
+
     for i_d in range(len(data0)):
         tmp = data0[i_d][field_column]
+
         if tmp == 'null':
             labelsstr.append(['NULL'])
-        elif tmp == '[]':
+            continue
+
+        labeltmp = eval(tmp)
+        if labeltmp == 'null' or labeltmp == '[]':
+            labelsstr.append(['NULL'])
+            continue
+
+        j_d = 0
+        while j_d < invalid_len:
+            if invalid_label[j_d] in labeltmp:
+                del_index = labeltmp.index(invalid_label[j_d])
+                del labeltmp[del_index]
+            else:
+                j_d += 1
+
+        if len(labeltmp) == 0:
             labelsstr.append(['NULL'])
         else:
-            labelsstr.append(eval(tmp))
+            labelsstr.append(labeltmp)
+
     print('Successfully obtain labels.')
 
     return labelsstr
@@ -94,6 +116,7 @@ def articles_jieba(articlesstr):
         article_str = articlesstr[i_d]
         # extract keywords and corresponding weights for this article
         article_jieba = jieba.analyse.extract_tags(article_str, topK=topkwords, withWeight=True)
+        # article_jieba = jieba.analyse.textrank(article_str, topK=topkwords, withWeight=True)
         articlesjieba.append(article_jieba)
 
     time.sleep(0.1)
@@ -239,7 +262,7 @@ def divide_data(articles, labels, test_part):
 def save_dictionary(dict_article, dict_label, requestfield):
     # save dictionaries
     outputdir = "../../output/"
-    outputpath = outputdir + requestfield + "_dict_"
+    outputpath = outputdir + requestfield + "/dict_"
 
     fieldnames = ['keywords', 'index']
 
@@ -255,13 +278,23 @@ def save_dictionary(dict_article, dict_label, requestfield):
         for key, val in dict_label.items():
             writer.writerow({fieldnames[0]: key, fieldnames[1]: val})
 
-    print(print('Successfully saved dictionaries.'))
+    print('Successfully saved dictionaries.')
 
 
 def load_dictionary(requestfield):
-    # save dictionaries
+    # load dictionaries
     dictdir = "../../output/"
-    dictpath = dictdir + requestfield + "_dict_"
+    dictpath = dictdir + requestfield + "/dict_"
+
+    dict_article_path = glob.glob(dictpath + "article.txt")
+    dict_label_path = glob.glob(dictpath + "label.txt")
+
+    if len(dict_article_path) == 0:
+        print('Article dictionary for {0} was not built yet.'.format(requestfield))
+    if len(dict_label_path) == 0:
+        print('Label dictionary for {0} was not built yet.'.format(requestfield))
+    if len(dict_article_path) == 0 or len(dict_label_path) == 0:
+        return dict(), dict()
 
     fieldnames = ['keywords', 'index']
 
@@ -283,7 +316,38 @@ def load_dictionary(requestfield):
     return dict_article, dict_label
 
 
-def get_data(requestfield='field', test_part=0.1):
+def data_to_libsvm_x(x_data):
+    # convert numpy ndarray to the format LIBSVM needed.
+
+    x_data_libsvm = list()
+
+    key0 = list(range(1, x_data[0].shape[0] + 1))
+
+    # x data
+    for d in x_data:
+        x_data_libsvm.append(dict(zip(key0, d.tolist())))
+
+    return x_data_libsvm
+
+
+def data_to_libsvm_y(y_data):
+    # convert numpy ndarray to the format LIBSVM needed.
+
+    if len(y_data.shape) == 2:
+
+        y_data_libsvm = []
+        y_data_column = np.zeros(shape=y_data.shape[0], dtype=float)
+
+        for i_d in range(y_data.shape[1]):
+            np.copyto(y_data_column, y_data[:, i_d])
+            y_data_libsvm.append(y_data_column.tolist())
+    else:
+        y_data_libsvm = y_data.tolist()
+
+    return y_data_libsvm
+
+
+def get_data(requestfield='field', config=None, test_part=0.1):
 
     # index for request field
     data_index, field_str = field_index_string(requestfield)
@@ -291,7 +355,17 @@ def get_data(requestfield='field', test_part=0.1):
     # field string
 
     # request articles and labels (format: string)
-    data0, articlesstr = medium_content_with(field_str)
+    data0, articlesstr, err_mysql = medium_content_with(field_str, config)
+
+    # if error:
+    if err_mysql:
+        x_train = []
+        y_train = []
+        x_test = []
+        y_test = []
+        err = True
+
+        return x_train, y_train, x_test, y_test, err
 
     # get labels for request field (format: string)
     labelsstr = get_labels(data0, data_index)
@@ -315,41 +389,45 @@ def get_data(requestfield='field', test_part=0.1):
     # divide data set into train and test set
     x_train, y_train, x_test, y_test = divide_data(articles, labels, test_part)
 
-    return x_train, y_train, x_test, y_test
+    err = False
+
+    return x_train, y_train, x_test, y_test, err
 
 
-def get_data_test(trainnum=10000, testnum=1000, datadim=100):
+def get_data_test(trainnum=10000, testnum=1000, datadim=100, labelnum=2):
     # a function for testing the train model
 
     # train data
     x_train = np.random.random([trainnum, datadim]) * 2 - 1
     x_train = np.sign(x_train)
-    y_train = np.zeros(shape=(trainnum, 2), dtype=np.float64)
+    y_train = np.zeros(shape=(trainnum, labelnum), dtype=np.float64)
     tmp = np.sign(x_train[:, 0])
     tmp[tmp == -1] = 0
     y_train[:, 0] = tmp
     tmp = np.sign(x_train[:, -1])
     tmp[tmp == -1] = 0
-    y_train[:, 1] = tmp
+    y_train[:, -1] = tmp
 
     # test data
     x_test = np.random.random([testnum, datadim]) * 2 - 1
     x_test = np.sign(x_test)
-    y_test = np.zeros(shape=(testnum, 2), dtype=np.float64)
+    y_test = np.zeros(shape=(testnum, labelnum), dtype=np.float64)
     tmp = np.sign(x_test[:, 0])
     tmp[tmp == -1] = 0
     y_test[:, 0] = tmp
     tmp = np.sign(x_test[:, -1])
     tmp[tmp == -1] = 0
-    y_test[:, 1] = tmp
+    y_test[:, -1] = tmp
 
-    return x_train, y_train, x_test, y_test
+    err = False
+
+    return x_train, y_train, x_test, y_test, err
 
 
 def get_data_file():
     # load data from a file
     # unfinished
 
-    articlesstr = ['这是一篇示例文章', '还有一篇文章，测试']
+    articlesstr = ['这是一篇示例文章', '还有一篇文章，测试', '当然是选择原谅她啦', '今天你要嫁给我']
 
     return articlesstr

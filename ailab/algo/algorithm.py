@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 import tensorflow as tf
 import numpy as np
-import time
 # import numba as nb
 # from numba import jit
+from ailab.libsvm.svmutil import *
 
 
 # Primal:
@@ -27,14 +27,6 @@ import time
 # BATCH_SIZE = 100  # The number of training examples to use per training step.
 # In fact, we do not use minibatch.
 
-# the parameter C of SVM
-SVMC = 1
-
-# the parameter D for L1 penalty
-SVMD = 0.1
-
-# Max epoch
-MAX_EPOCH = 10000
 
 # If show total loss
 SHOW_LOSS = True
@@ -42,7 +34,10 @@ SHOW_LOSS = True
 
 # @jit(nb.float64(nb.float64[:, :], nb.float64[:], nb.float64[:], nb.int64, nb.float64[:]),
 #      nopython=True, cache=True)
-def loss_label(x_data, y_data, w_train, b_train, zero_par):
+def loss_label(x_data, y_data, w_train, b_train, zero_par, param):
+
+    svmc = param['C']
+    svmd = param['D']
 
     # raw
     y_raw = np.zeros(shape=x_data.shape[0], dtype=np.float64)
@@ -60,7 +55,7 @@ def loss_label(x_data, y_data, w_train, b_train, zero_par):
     l1_loss = np.sum(np.abs(w_train))
 
     # total loss
-    svm_loss = regularization_loss + SVMC * hinge_loss + SVMD * l1_loss
+    svm_loss = regularization_loss + svmc * hinge_loss + svmd * l1_loss
 
     return svm_loss
 
@@ -73,7 +68,23 @@ def shrink(y, nu):
     return x
 
 
-def dual_l1dcds(x_train, y_train, label_id, label_num):
+def call_libsvm(x_train, y_train, param):
+    # train model for each label
+    # method: LIBSVM
+
+    # train data
+    x_data = x_train
+    y_data = y_train.copy()
+
+    # Convert labels to +1,-1
+    y_data[y_data == 0] = -1
+
+    model = svm_train(y_data, x_data, param['libsvm'] + ' -q')
+
+    return model
+
+
+def dual_l1dcds(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: dual coordinate descent with Random Permutation
     # reference: A Dual Coordinate Descent Method for Large-scale Linear SVM [Hsieh et al, 2008, ICML]
@@ -82,16 +93,17 @@ def dual_l1dcds(x_train, y_train, label_id, label_num):
     # it could take about 3 hours for training the whole field 'labelledField', if we set the err_loss to be 1e-6
     # maybe we could consider the shrinking to speed up. reference: [Hsieh et al, 2008, ICML]
 
-    print('Training process for label {0} in {1} begin.'.format(label_id + 1, label_num))
-
     # train data
     x_data = np.ones(shape=(x_train.shape[0], x_train.shape[1] + 1), dtype=np.float64)
     x_data[:, :-1] = x_train
     y_data = np.zeros(shape=y_train.shape[0], dtype=np.float64)
     y_data[:] = y_train
 
-    # error
-    err_loss = 1e-8
+    # parameters
+    svmc = param['C']
+    svmd = param['D']
+    err_loss = param['err']
+    max_epoch = param['max_epoch']
 
     # Ratio of the TRUE data
     print('Ratio of True on train set: {0}, for label {1} in {2}'.format(y_data.mean(), label_id + 1, label_num))
@@ -104,8 +116,8 @@ def dual_l1dcds(x_train, y_train, label_id, label_num):
 
     # parameters
     q_par = np.linalg.norm(x_data, ord=2, axis=1)**2
-    m_par = SVMD * np.ones(shape=size_dim, dtype=np.float64)
-    u_par = SVMC
+    m_par = svmd * np.ones(shape=size_dim, dtype=np.float64)
+    u_par = svmc
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
 
     # initialize variables
@@ -113,26 +125,25 @@ def dual_l1dcds(x_train, y_train, label_id, label_num):
     a_train = np.zeros(shape=size_data, dtype=np.float64)
 
     # initial loss
-    svm_loss_old = loss_label(x_data, y_data, w_train, 0, zero_par)
+    svm_loss_old = loss_label(x_data, y_data, w_train, 0, zero_par, param)
 
     # one key parameter
     p_star = 0
 
     old_list = list(range(size_data))
 
-    Mbar = np.Inf
-    mbar = -np.Inf
+    m_upper_bar = np.Inf
+    m_lower_bar = -np.Inf
     err_shrink = 1e-4
 
     # train begin
     count_epoch = 0
-    timest = time.time()
 
     # train
-    while count_epoch < MAX_EPOCH:
+    while count_epoch < max_epoch:
 
-        M = 0
-        m = 0
+        m_upper = 0
+        m_lower = 0
 
         new_list = old_list.copy()
         new_list_shuffle = new_list.copy()
@@ -143,20 +154,20 @@ def dual_l1dcds(x_train, y_train, label_id, label_num):
             g = y_data[i_d] * np.dot(x_data[i_d], w_train) - 1
             pg = 0
             if ai_old == 0:
-                if g > Mbar:
+                if g > m_upper_bar:
                     new_list.remove(i_d)
                 elif g < 0:
                     pg = g
             elif ai_old == u_par:
-                if g < mbar:
+                if g < m_lower_bar:
                     new_list.remove(i_d)
                 elif g > 0:
                     pg = g
             else:
                 pg = g
 
-            M = np.maximum(M, g)
-            m = np.minimum(m, g)
+            m_upper = np.maximum(m_upper, g)
+            m_lower = np.minimum(m_lower, g)
 
             if not np.abs(pg) == 0:
                 ai = np.minimum(np.maximum(ai_old - g / q_par[i_d], 0), u_par)
@@ -167,22 +178,22 @@ def dual_l1dcds(x_train, y_train, label_id, label_num):
 
         old_list = new_list.copy()
 
-        if M - m < err_shrink:
+        if m_upper - m_lower < err_shrink:
             if len(old_list) != size_data:
                 old_list = list(range(size_data))
-                Mbar = np.Inf
-                mbar = -np.Inf
+                m_upper_bar = np.Inf
+                m_lower_bar = -np.Inf
                 continue
 
-        if M > 0:
-            Mbar = M
+        if m_upper > 0:
+            m_upper_bar = m_upper
         else:
-            Mbar = np.Inf
+            m_upper_bar = np.Inf
 
-        if m < 0:
-            mbar = m
+        if m_lower < 0:
+            m_lower_bar = m_lower
         else:
-            mbar = -np.Inf
+            m_lower_bar = -np.Inf
 
         count_epoch += 1
 
@@ -193,10 +204,10 @@ def dual_l1dcds(x_train, y_train, label_id, label_num):
                 p_star -= a_train[i_d] * y_data[i_d] * x_data[i_d]
             p_train = np.minimum(np.maximum(p_star, -m_par), m_par)
             w_train = p_train - p_star
-            svm_loss = loss_label(x_data, y_data, w_train, 0, zero_par)
+            svm_loss = loss_label(x_data, y_data, w_train, 0, zero_par, param)
             if SHOW_LOSS:
                 print('Training loss for label {0} in {1}: {2}th epoch of {3} - {4}'
-                      .format(label_id + 1, label_num, count_epoch, MAX_EPOCH, svm_loss))
+                      .format(label_id + 1, label_num, count_epoch, max_epoch, svm_loss))
 
             # if meet the accuracy condition
             if np.abs(svm_loss - svm_loss_old) / np.minimum(svm_loss, svm_loss_old) < err_loss:
@@ -205,17 +216,15 @@ def dual_l1dcds(x_train, y_train, label_id, label_num):
             svm_loss_old = svm_loss
     # end train
 
-    timeed = time.time()
-    print('Training process for label {0} in {1} has finished. Training time: {2} s'
-          .format(label_id + 1, label_num, timeed - timest))
-
     b_train = w_train[-1]
     w_train = w_train[:-1]
 
-    return w_train, b_train
+    model = [w_train, b_train]
+
+    return model
 
 
-def dual_l1dcd_test(x_train, y_train, label_id, label_num):
+def dual_l1dcd_test(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: dual coordinate descent with Random Permutation
     # reference: A Dual Coordinate Descent Method for Large-scale Linear SVM [Hsieh et al, 2008, ICML]
@@ -232,11 +241,11 @@ def dual_l1dcd_test(x_train, y_train, label_id, label_num):
     y_data = np.zeros(shape=y_train.shape[0], dtype=np.float64)
     y_data[:] = y_train
 
-    # error
-    err_loss = 1e-3
-
-    # Ratio of the TRUE data
-    print('Ratio of True on train set: {0}, for label {1} in {2}'.format(y_data.mean(), label_id + 1, label_num))
+    # parameters
+    svmc = param['C']
+    svmd = param['D']
+    err_loss = param['err']
+    max_epoch = param['max_epoch']
 
     # Convert labels to +1,-1
     y_data[y_data == 0] = -1
@@ -247,8 +256,8 @@ def dual_l1dcd_test(x_train, y_train, label_id, label_num):
     # parameters
     # a_par = np.matmul(np.diag(y_data), x_data)
     q_par = np.linalg.norm(x_data, ord=2, axis=1)**2
-    m_par = SVMD * np.ones(shape=size_dim, dtype=np.float64)
-    u_par = SVMC
+    m_par = svmd * np.ones(shape=size_dim, dtype=np.float64)
+    u_par = svmc
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
     # one_par = np.ones(shape=size_data, dtype=np.float64)
 
@@ -257,7 +266,7 @@ def dual_l1dcd_test(x_train, y_train, label_id, label_num):
     a_train = np.zeros(shape=size_data, dtype=np.float64)
 
     # initial loss
-    svm_loss_old = loss_label(x_data, y_data, w_train, 0, zero_par)
+    svm_loss_old = loss_label(x_data, y_data, w_train, 0, zero_par, param)
 
     # key parameters
     p_star = 0
@@ -269,10 +278,9 @@ def dual_l1dcd_test(x_train, y_train, label_id, label_num):
 
     # train begin
     count_epoch = 0
-    timest = time.time()
 
     # train
-    while count_epoch < MAX_EPOCH:
+    while count_epoch < max_epoch:
 
         for i_d in np.random.permutation(size_data):
             ai_old = a_train[i_d]
@@ -321,10 +329,10 @@ def dual_l1dcd_test(x_train, y_train, label_id, label_num):
                 p_star -= a_train[i_d] * y_data[i_d] * x_data[i_d]
             p_train = np.minimum(np.maximum(p_star, -m_par), m_par)
             w_train = p_train - p_star
-            svm_loss = loss_label(x_data, y_data, w_train, 0, zero_par)
+            svm_loss = loss_label(x_data, y_data, w_train, 0, zero_par, param)
             if SHOW_LOSS:
                 print('Training loss for label {0} in {1}: {2}th epoch of {3} - {4}'
-                      .format(label_id + 1, label_num, count_epoch, MAX_EPOCH, svm_loss))
+                      .format(label_id + 1, label_num, count_epoch, max_epoch, svm_loss))
 
             # if meet the accuracy condition
             if np.abs(svm_loss - svm_loss_old) / np.minimum(svm_loss, svm_loss_old) < err_loss:
@@ -333,19 +341,17 @@ def dual_l1dcd_test(x_train, y_train, label_id, label_num):
             svm_loss_old = svm_loss
     # end train
 
-    timeed = time.time()
-    print('Training process for label {0} in {1} has finished. Training time: {2} s'
-          .format(label_id + 1, label_num, timeed - timest))
-
     b_train = w_train[-1]
     w_train = w_train[:-1]
 
-    return w_train, b_train
+    model = [w_train, b_train]
+
+    return model
 
 
 # @jit(nb.types.Tuple((nb.float64[:], nb.float64))(nb.float64[:, :], nb.float64[:], nb.int64, nb.int64),
 #      nopython=True, cache=True)
-def dual_l1dcd(x_train, y_train, label_id, label_num):
+def dual_l1dcd(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: dual coordinate descent with Random Permutation
     # reference: A Dual Coordinate Descent Method for Large-scale Linear SVM [Hsieh et al, 2008, ICML]
@@ -354,19 +360,17 @@ def dual_l1dcd(x_train, y_train, label_id, label_num):
     # it could take about 3 hours for training the whole field 'labelledField', if we set the err_loss to be 1e-6
     # maybe we could consider the shrinking to speed up. reference: [Hsieh et al, 2008, ICML]
 
-    print('Training process for label', label_id + 1, 'in', label_num)
-
     # train data
     x_data = np.ones(shape=(x_train.shape[0], x_train.shape[1] + 1), dtype=np.float64)
     x_data[:, :-1] = x_train
     y_data = np.zeros(shape=y_train.shape[0], dtype=np.float64)
     y_data[:] = y_train
 
-    # error
-    err_loss = 1e-3
-
-    # Ratio of the TRUE data
-    print('Ratio of True on train set:', y_data.mean(), 'for label', label_id + 1, 'in', label_num)
+    # parameters
+    svmc = param['C']
+    svmd = param['D']
+    err_loss = param['err']
+    max_epoch = param['max_epoch']
 
     # Convert labels to +1,-1
     y_data[y_data == 0] = -1
@@ -374,20 +378,21 @@ def dual_l1dcd(x_train, y_train, label_id, label_num):
     # data size
     size_data, size_dim = x_data.shape
 
-    # parameters
+    # constants
     q_par = np.zeros(shape=size_data, dtype=np.float64)
     for i_d in range(size_data):
         q_par[i_d] = np.dot(x_data[i_d], x_data[i_d])
-    m_par = SVMD * np.ones(shape=size_dim, dtype=np.float64)
-    u_par = np.float64(SVMC)
+    m_par = svmd * np.ones(shape=size_dim, dtype=np.float64)
+    u_par = np.float64(svmc)
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
 
     # initialize variables
     w_train = np.zeros(shape=size_dim, dtype=np.float64)
     a_train = np.zeros(shape=size_data, dtype=np.float64)
+    # p_train = np.zeros(shape=size_dim, dtype=np.float64)
 
     # initial loss
-    svm_loss_old = loss_label(x_data, y_data, w_train, 0, zero_par)
+    svm_loss_old = loss_label(x_data, y_data, w_train, 0, zero_par, param)
 
     # one key parameter
     p_star = np.zeros(shape=size_dim, dtype=np.float64)
@@ -395,10 +400,9 @@ def dual_l1dcd(x_train, y_train, label_id, label_num):
 
     # train begin
     count_epoch = 0
-    # timest = time.time()
 
     # train
-    while count_epoch < MAX_EPOCH:
+    while count_epoch < max_epoch:
         np.random.shuffle(index_list)
         for i_d in index_list:
             ai_old = a_train[i_d]
@@ -425,10 +429,10 @@ def dual_l1dcd(x_train, y_train, label_id, label_num):
                 p_star -= a_train[i_d] * y_data[i_d] * x_data[i_d]
             p_train = np.minimum(np.maximum(p_star, -m_par), m_par)
             w_train = p_train - p_star
-            svm_loss = loss_label(x_data, y_data, w_train, 0, zero_par)
+            svm_loss = loss_label(x_data, y_data, w_train, 0, zero_par, param)
             if SHOW_LOSS:
                 print('Training loss for label', label_id + 1, 'in', label_num, ':', count_epoch, 'th epoch of',
-                      MAX_EPOCH, '-', svm_loss)
+                      max_epoch, '-', svm_loss)
 
             # if meet the accuracy condition
             if np.abs(svm_loss - svm_loss_old) / np.minimum(svm_loss, svm_loss_old) < err_loss:
@@ -437,24 +441,19 @@ def dual_l1dcd(x_train, y_train, label_id, label_num):
             svm_loss_old = svm_loss
     # end train
 
-    # timeed = time.time()
-    print('Training process for label', label_id + 1, 'in', label_num, 'has finished.')
-    # print('Training process for label', label_id + 1, 'in', label_num, 'has finished. Training time:',
-    #       timeed - timest, 's')
-
     b_train = w_train[-1]
     w_train = w_train[:-1]
 
-    return w_train, b_train
+    model = [w_train, b_train]
+
+    return model
 
 
-def dual_dcd(x_train, y_train, label_id, label_num):
+def dual_dcd(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: dual coordinate descent with Random Permutation
     # reference: A Dual Coordinate Descent Method for Large-scale Linear SVM [Hsieh et al, 2008, ICML]
     # fast and available for high dimentional data
-
-    print('Training process for label {0} in {1} begin.'.format(label_id + 1, label_num))
 
     # train data
     x_data = np.ones(shape=(x_train.shape[0], x_train.shape[1] + 1), dtype=np.float64)
@@ -462,8 +461,10 @@ def dual_dcd(x_train, y_train, label_id, label_num):
     y_data = np.zeros(shape=y_train.shape[0], dtype=np.float64)
     y_data[:] = y_train
 
-    # error
-    err_loss = 1e-8
+    # parameters
+    svmc = param['C']
+    err_loss = param['err']
+    max_epoch = param['max_epoch']
 
     # Ratio of the TRUE data
     print('Ratio of True on train set: {0}, for label {1} in {2}'.format(y_data.mean(), label_id + 1, label_num))
@@ -474,13 +475,13 @@ def dual_dcd(x_train, y_train, label_id, label_num):
     # data size
     size_data, size_dim = x_data.shape
 
-    # parameters
+    # constants
     q_par = np.linalg.norm(x_data, ord=2, axis=1)**2
     # d_par = np.zeros(shape=size_data, dtype=np.float64) + 1 / (2 * SVMC)
     d_par = np.zeros(shape=size_data, dtype=np.float64)
     q_par = q_par + d_par
     # u_par = np.inf
-    u_par = SVMC
+    u_par = svmc
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
 
     # initialize variables
@@ -488,14 +489,13 @@ def dual_dcd(x_train, y_train, label_id, label_num):
     a_train = np.zeros(shape=size_data, dtype=np.float64)
 
     # initial loss
-    svm_loss_old = loss_label(x_data, y_data, w_train, 0, zero_par)
+    svm_loss_old = loss_label(x_data, y_data, w_train, 0, zero_par, param)
 
     # train begin
     count_epoch = 0
-    timest = time.time()
 
     # train
-    while count_epoch < MAX_EPOCH:
+    while count_epoch < max_epoch:
         for i_d in np.random.permutation(size_data):
             ai_old = a_train[i_d]
             g = y_data[i_d] * np.dot(w_train, x_data[i_d]) - 1 + d_par[i_d] * ai_old
@@ -517,10 +517,10 @@ def dual_dcd(x_train, y_train, label_id, label_num):
             w_train[:] = 0
             for i_d in range(size_data):
                 w_train += a_train[i_d] * y_data[i_d] * x_data[i_d]
-            svm_loss = loss_label(x_data, y_data, w_train, 0, zero_par)
+            svm_loss = loss_label(x_data, y_data, w_train, 0, zero_par, param)
             if SHOW_LOSS:
                 print('Training loss for label {0} in {1}: {2}th epoch of {3} - {4}'
-                      .format(label_id + 1, label_num, count_epoch, MAX_EPOCH, svm_loss))
+                      .format(label_id + 1, label_num, count_epoch, max_epoch, svm_loss))
 
             # if meet the accuracy condition
             if np.abs(svm_loss - svm_loss_old) / np.minimum(svm_loss, svm_loss_old) < err_loss:
@@ -529,30 +529,29 @@ def dual_dcd(x_train, y_train, label_id, label_num):
             svm_loss_old = svm_loss
     # end train
 
-    timeed = time.time()
-    print('Training process for label {0} in {1} has finished. Training time: {2} s'
-          .format(label_id + 1, label_num, timeed - timest))
-
     b_train = w_train[-1]
     w_train = w_train[:-1]
 
-    return w_train, b_train
+    model = [w_train, b_train]
+
+    return model
 
 
-def prim_admm(x_train, y_train, label_id, label_num):
+def prim_admm(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: ADMM for prim problem
     # slow and could not handle data with features more than 40k
-
-    print('Training process for label {0} in {1} begin.'.format(label_id + 1, label_num))
 
     # train data
     x_data = x_train
     y_data = np.zeros(shape=y_train.shape[0], dtype=np.float64)
     y_data[:] = y_train
 
-    # error
-    err_loss = 1e-8
+    # parameters
+    svmc = param['C']
+    svmd = param['D']
+    err_loss = param['err']
+    max_epoch = param['max_epoch']
 
     # Ratio of the TRUE data
     print('Ratio of True on train set: {0}, for label {1} in {2}'.format(y_data.mean(), label_id + 1, label_num))
@@ -563,10 +562,10 @@ def prim_admm(x_train, y_train, label_id, label_num):
     # data size
     size_data, size_dim = x_data.shape
 
-    # parameters
+    # constants
     mu = 100
     nu = 100
-    c_half = SVMC / 2
+    c_half = svmc / 2
     a_par = np.matmul(np.diag(y_data), x_data)
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
     one_par = np.ones(shape=size_data, dtype=np.float64)
@@ -584,14 +583,13 @@ def prim_admm(x_train, y_train, label_id, label_num):
     p_train = np.zeros(shape=size_dim, dtype=np.float64)
 
     # initial loss
-    svm_loss_old = loss_label(x_data, y_data, w_train, b_train, zero_par)
+    svm_loss_old = loss_label(x_data, y_data, w_train, b_train, zero_par, param)
 
     # train begin
     count_epoch = 0
-    timest = time.time()
 
     # train
-    while count_epoch < MAX_EPOCH:
+    while count_epoch < max_epoch:
 
         tmp = np.matmul(w_par2, t_train + one_par - y_data * b_train - mu * r_train) + p_train + z_train / nu
         w_train = np.matmul(w_par1, tmp)
@@ -599,7 +597,7 @@ def prim_admm(x_train, y_train, label_id, label_num):
         b_train = b_par1 * np.dot(b_par2, t_train + one_par - aw - mu * r_train)
         yb = y_data * b_train
         t_train = shrink(aw + yb + mu * r_train + (mu - 1) * one_par, mu)
-        z_train = shrink(w_train - nu * p_train, nu * SVMD)
+        z_train = shrink(w_train - nu * p_train, nu * svmd)
 
         r_train += (aw + yb - t_train - one_par) / mu
         p_train += (z_train - w_train) / nu
@@ -607,10 +605,10 @@ def prim_admm(x_train, y_train, label_id, label_num):
         count_epoch += 1
 
         if count_epoch % 10 == 0:
-            svm_loss = loss_label(x_data, y_data, w_train, b_train, zero_par)
+            svm_loss = loss_label(x_data, y_data, w_train, b_train, zero_par, param)
             if SHOW_LOSS:
                 print('Training loss for label {0} in {1}: {2}th epoch of {3} - {4}'
-                      .format(label_id + 1, label_num, count_epoch, MAX_EPOCH, svm_loss))
+                      .format(label_id + 1, label_num, count_epoch, max_epoch, svm_loss))
 
             # if meet the accuracy condition
             if np.abs(svm_loss - svm_loss_old) / np.minimum(svm_loss, svm_loss_old) < err_loss:
@@ -619,30 +617,28 @@ def prim_admm(x_train, y_train, label_id, label_num):
             svm_loss_old = svm_loss
     # end train
 
-    timeed = time.time()
-    print('Training process for label {0} in {1} has finished. Training time: {2} s'
-          .format(label_id + 1, label_num, timeed - timest))
-
     w_train = z_train
     b_train = b_par1 * np.dot(b_par2, t_train + one_par - np.matmul(a_par, w_train) - mu * r_train)
 
-    return w_train, b_train
+    model = [w_train, b_train]
+
+    return model
 
 
-def prim_tf(x_train, y_train, label_id, label_num):
+def prim_tf(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: tensorflow
     # too slow and sometimes could not converge
-
-    print('Training process for label {0} in {1} begin.'.format(label_id + 1, label_num))
 
     # train data
     x_data = x_train
     y_data = np.zeros(shape=y_train.shape[0], dtype=np.float64)
     y_data[:] = y_train
 
-    # error
-    err_loss = 1e-6
+    # parameters
+    svmc = param['C']
+    err_loss = param['err']
+    max_epoch = param['max_epoch']
 
     # Ratio of the TRUE data
     print('Ratio of True on train set: {0}, for label {1} in {2}'.format(y_data.mean(), label_id + 1, label_num))
@@ -669,7 +665,7 @@ def prim_tf(x_train, y_train, label_id, label_num):
     # l1_loss = tf.reduce_sum(tf.abs(w_train))
     l1_loss = 0
     hinge_loss = tf.reduce_sum(tf.maximum(tf.zeros([size_data, 1]), 1 - y * y_raw))
-    svm_loss = regularization_loss + SVMC * hinge_loss + l1_loss
+    svm_loss = regularization_loss + svmc * hinge_loss + l1_loss
 
     # Optimizer
     # train_step = tf.train.GradientDescentOptimizer(0.01).minimize(svm_loss)
@@ -686,10 +682,9 @@ def prim_tf(x_train, y_train, label_id, label_num):
 
         # train begin
         count_epoch = 0
-        timest = time.time()
 
         # train
-        while count_epoch < MAX_EPOCH:
+        while count_epoch < max_epoch:
             count_epoch += 1
             train_step.run(feed_dict={x: x_data, y: y_data})
 
@@ -697,7 +692,7 @@ def prim_tf(x_train, y_train, label_id, label_num):
                 svm_loss_new = sess.run(svm_loss, feed_dict={x: x_data, y: y_data})
                 if SHOW_LOSS:
                     print('Training loss for label {0} in {1}: {2}th epoch of {3} - {4}'
-                          .format(label_id + 1, label_num, count_epoch, MAX_EPOCH, svm_loss_new))
+                          .format(label_id + 1, label_num, count_epoch, max_epoch, svm_loss_new))
 
                 # if meet the accuracy condition
                 if np.abs(svm_loss_new - svm_loss_old) / np.minimum(svm_loss_new, svm_loss_old) < err_loss:
@@ -706,12 +701,10 @@ def prim_tf(x_train, y_train, label_id, label_num):
                 svm_loss_old = svm_loss_new
         # end train
 
-        timeed = time.time()
-        print('Training process for label {0} in {1} has finished. Training time: {2} s'
-              .format(label_id + 1, label_num, timeed - timest))
-
         w_train = sess.run(w_train)
         w_train = w_train[:, 0]
         b_train = sess.run(b_train)
 
-    return w_train, b_train
+        model = [w_train, b_train]
+
+    return model

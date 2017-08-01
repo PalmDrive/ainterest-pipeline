@@ -1,10 +1,13 @@
 # -*- coding:utf-8 -*-
-from ailab.tasks.multi_tasks import *
+from ailab.tasks.multi_tasks import MultiClass
 
 
 class ContentTypeClass(MultiClass):
 
     def __init__(self, model_dir="../../output/"):
+        MultiClass.__init__(self)
+
+        # not editable
         self.__request = 'contentType'
         self.__model_dir = model_dir
 
