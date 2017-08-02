@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
-from tasks.multi_tasks import MultiTrain
+from ailab.tasks.multi_tasks import MultiTrain
 
 
 class FieldTrain(MultiTrain):
 
-    def __init__(self, output_dir="../../output/"):
+    def __init__(self, output_dir="output"):
         MultiTrain.__init__(self)
 
         # not editable

@@ -1,12 +1,13 @@
 # -*- coding:utf-8 -*-
 import numpy as np
-import train as train
-import data_process as utils
+import ailab.data_process as utils
 import glob
 import pymysql
 
 
 # If save data
+from ailab import train
+
 IF_SAVE = False
 
 # If show results

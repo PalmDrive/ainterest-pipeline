@@ -1,4 +1,3 @@
--e git+git@github.com:PalmDrive/ainterest-pipeline.git@dadcd61cf4d0e9062d1db3c6c7d6ef1a238d7cdf#egg=ailab&subdirectory=ailab
 appnope==0.1.0
 backports.shutil-get-terminal-size==1.0.0
 backports.weakref==1.0rc1

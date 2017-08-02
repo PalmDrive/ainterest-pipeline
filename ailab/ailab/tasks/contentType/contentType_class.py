@@ -1,14 +1,14 @@
 # -*- coding:utf-8 -*-
-from tasks.multi_tasks import MultiClass
+from ailab.tasks.multi_tasks import MultiClass
 
 
-class FieldClass(MultiClass):
+class ContentTypeClass(MultiClass):
 
-    def __init__(self, model_dir="../../output/"):
+    def __init__(self, model_dir="output"):
         MultiClass.__init__(self)
 
         # not editable
-        self.__request = 'field'
+        self.__request = 'contentType'
         self.__model_dir = model_dir
 
     def classify(self, articlesstr):

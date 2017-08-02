@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from tasks.position.position_class import PositionClass
+from ailab.tasks.position.position_class import PositionClass
 
 
 def main():

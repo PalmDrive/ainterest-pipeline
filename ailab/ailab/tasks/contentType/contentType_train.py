@@ -1,14 +1,14 @@
 # -*- coding:utf-8 -*-
-from tasks.multi_tasks import MultiTrain
+from ailab.tasks.multi_tasks import MultiTrain
 
 
-class PositionTrain(MultiTrain):
+class ContentTypeTrain(MultiTrain):
 
-    def __init__(self, output_dir="../../output/"):
+    def __init__(self, output_dir="output"):
         MultiTrain.__init__(self)
 
         # not editable
-        self.__request = 'position'
+        self.__request = 'contentType'
         self.__output_dir = output_dir
 
     def train(self):

@@ -4,8 +4,8 @@ import os
 import sys
 from ctypes import c_double
 
-import libsvm
-from libsvm.svm import toPyModel, svm_parameter, svm_problem, PRECOMPUTED, \
+from ailab import libsvm
+from ailab.libsvm.svm import toPyModel, svm_parameter, svm_problem, PRECOMPUTED, \
     EPSILON_SVR, NU_SVR, gen_svm_nodearray, ONE_CLASS, NU_SVC, print_null
 
 sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
@@ -13,11 +13,11 @@ sys.path = [os.path.dirname(os.path.abspath(__file__))] + sys.path
 
 def svm_read_problem(data_file_name):
     """
-	svm_read_problem(data_file_name) -> [y, x]
+    svm_read_problem(data_file_name) -> [y, x]
 
-	Read LIBSVM-format data from data_file_name and return labels y
-	and data instances x.
-	"""
+    Read LIBSVM-format data from data_file_name and return labels y
+    and data instances x.
+    """
     prob_y = []
     prob_x = []
     for line in open(data_file_name):
@@ -36,10 +36,10 @@ def svm_read_problem(data_file_name):
 
 def svm_load_model(model_file_name):
     """
-	svm_load_model(model_file_name) -> model
+    svm_load_model(model_file_name) -> model
 
-	Load a LIBSVM model from model_file_name and return.
-	"""
+    Load a LIBSVM model from model_file_name and return.
+    """
     model = libsvm.svm_load_model(model_file_name.encode())
     if not model:
         print("can't open model file %s" % model_file_name)
@@ -50,20 +50,20 @@ def svm_load_model(model_file_name):
 
 def svm_save_model(model_file_name, model):
     """
-	svm_save_model(model_file_name, model) -> None
+    svm_save_model(model_file_name, model) -> None
 
-	Save a LIBSVM model to the file model_file_name.
-	"""
+    Save a LIBSVM model to the file model_file_name.
+    """
     libsvm.svm_save_model(model_file_name.encode(), model)
 
 
 def evaluations(ty, pv):
     """
-	evaluations(ty, pv) -> (ACC, MSE, SCC)
+    evaluations(ty, pv) -> (ACC, MSE, SCC)
 
-	Calculate accuracy, mean squared error and squared correlation coefficient
-	using the true values (ty) and predicted values (pv).
-	"""
+    Calculate accuracy, mean squared error and squared correlation coefficient
+    using the true values (ty) and predicted values (pv).
+    """
     if len(ty) != len(pv):
         raise ValueError("len(ty) must equal to len(pv)")
     total_correct = total_error = 0
@@ -90,41 +90,41 @@ def evaluations(ty, pv):
 
 def svm_train(arg1, arg2=None, arg3=None):
     """
-	svm_train(y, x [, options]) -> model | ACC | MSE
-	svm_train(prob [, options]) -> model | ACC | MSE
-	svm_train(prob, param) -> model | ACC| MSE
+    svm_train(y, x [, options]) -> model | ACC | MSE
+    svm_train(prob [, options]) -> model | ACC | MSE
+    svm_train(prob, param) -> model | ACC| MSE
 
-	Train an SVM model from data (y, x) or an svm_problem prob using
-	'options' or an svm_parameter param.
-	If '-v' is specified in 'options' (i.e., cross validation)
-	either accuracy (ACC) or mean-squared error (MSE) is returned.
-	options:
-	    -s svm_type : set type of SVM (default 0)
-	        0 -- C-SVC		(multi-class classification)
-	        1 -- nu-SVC		(multi-class classification)
-	        2 -- one-class SVM
-	        3 -- epsilon-SVR	(regression)
-	        4 -- nu-SVR		(regression)
-	    -t kernel_type : set type of kernel function (default 2)
-	        0 -- linear: u'*v
-	        1 -- polynomial: (gamma*u'*v + coef0)^degree
-	        2 -- radial basis function: exp(-gamma*|u-v|^2)
-	        3 -- sigmoid: tanh(gamma*u'*v + coef0)
-	        4 -- precomputed kernel (kernel values in training_set_file)
-	    -d degree : set degree in kernel function (default 3)
-	    -g gamma : set gamma in kernel function (default 1/num_features)
-	    -r coef0 : set coef0 in kernel function (default 0)
-	    -c cost : set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default 1)
-	    -n nu : set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)
-	    -p epsilon : set the epsilon in loss function of epsilon-SVR (default 0.1)
-	    -m cachesize : set cache memory size in MB (default 100)
-	    -e epsilon : set tolerance of termination criterion (default 0.001)
-	    -h shrinking : whether to use the shrinking heuristics, 0 or 1 (default 1)
-	    -b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)
-	    -wi weight : set the parameter C of class i to weight*C, for C-SVC (default 1)
-	    -v n: n-fold cross validation mode
-	    -q : quiet mode (no outputs)
-	"""
+    Train an SVM model from data (y, x) or an svm_problem prob using
+    'options' or an svm_parameter param.
+    If '-v' is specified in 'options' (i.e., cross validation)
+    either accuracy (ACC) or mean-squared error (MSE) is returned.
+    options:
+        -s svm_type : set type of SVM (default 0)
+            0 -- C-SVC        (multi-class classification)
+            1 -- nu-SVC        (multi-class classification)
+            2 -- one-class SVM
+            3 -- epsilon-SVR    (regression)
+            4 -- nu-SVR        (regression)
+        -t kernel_type : set type of kernel function (default 2)
+            0 -- linear: u'*v
+            1 -- polynomial: (gamma*u'*v + coef0)^degree
+            2 -- radial basis function: exp(-gamma*|u-v|^2)
+            3 -- sigmoid: tanh(gamma*u'*v + coef0)
+            4 -- precomputed kernel (kernel values in training_set_file)
+        -d degree : set degree in kernel function (default 3)
+        -g gamma : set gamma in kernel function (default 1/num_features)
+        -r coef0 : set coef0 in kernel function (default 0)
+        -c cost : set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default 1)
+        -n nu : set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)
+        -p epsilon : set the epsilon in loss function of epsilon-SVR (default 0.1)
+        -m cachesize : set cache memory size in MB (default 100)
+        -e epsilon : set tolerance of termination criterion (default 0.001)
+        -h shrinking : whether to use the shrinking heuristics, 0 or 1 (default 1)
+        -b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)
+        -wi weight : set the parameter C of class i to weight*C, for C-SVC (default 1)
+        -v n: n-fold cross validation mode
+        -q : quiet mode (no outputs)
+    """
     prob, param = None, None
     if isinstance(arg1, (list, tuple)):
         assert isinstance(arg2, (list, tuple))
@@ -180,26 +180,26 @@ def svm_train(arg1, arg2=None, arg3=None):
 
 def svm_predict(y, x, m, options=""):
     """
-	svm_predict(y, x, m [, options]) -> (p_labels, p_acc, p_vals)
+    svm_predict(y, x, m [, options]) -> (p_labels, p_acc, p_vals)
 
-	Predict data (y, x) with the SVM model m.
-	options:
-	    -b probability_estimates: whether to predict probability estimates,
-	        0 or 1 (default 0); for one-class SVM only 0 is supported.
-	    -q : quiet mode (no outputs).
+    Predict data (y, x) with the SVM model m.
+    options:
+        -b probability_estimates: whether to predict probability estimates,
+            0 or 1 (default 0); for one-class SVM only 0 is supported.
+        -q : quiet mode (no outputs).
 
-	The return tuple contains
-	p_labels: a list of predicted labels
-	p_acc: a tuple including  accuracy (for classification), mean-squared
-	       error, and squared correlation coefficient (for regression).
-	p_vals: a list of decision values or probability estimates (if '-b 1'
-	        is specified). If k is the number of classes, for decision values,
-	        each element includes results of predicting k(k-1)/2 binary-class
-	        SVMs. For probabilities, each element contains k values indicating
-	        the probability that the testing instance is in each class.
-	        Note that the order of classes here is the same as 'model.label'
-	        field in the model structure.
-	"""
+    The return tuple contains
+    p_labels: a list of predicted labels
+    p_acc: a tuple including  accuracy (for classification), mean-squared
+           error, and squared correlation coefficient (for regression).
+    p_vals: a list of decision values or probability estimates (if '-b 1'
+            is specified). If k is the number of classes, for decision values,
+            each element includes results of predicting k(k-1)/2 binary-class
+            SVMs. For probabilities, each element contains k values indicating
+            the probability that the testing instance is in each class.
+            Note that the order of classes here is the same as 'model.label'
+            field in the model structure.
+    """
 
     def info(s):
         print(s)

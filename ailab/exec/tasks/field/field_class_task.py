@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from tasks.field.field_class import FieldClass
+from ailab.tasks.field.field_class import FieldClass
 
 
 def main():

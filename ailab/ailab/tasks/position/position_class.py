@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from tasks.multi_tasks import MultiClass
+from ailab.tasks.multi_tasks import MultiClass
 
 
 class PositionClass(MultiClass):

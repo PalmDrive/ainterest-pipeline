@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from tasks.contentType.contentType_train import ContentTypeTrain
+from ailab.tasks.contentType.contentType_train import ContentTypeTrain
 
 
 def main():

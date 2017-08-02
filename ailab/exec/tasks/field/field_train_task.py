@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from tasks.field.field_train import FieldTrain
+from ailab.tasks.field.field_train import FieldTrain
 
 
 def main():
