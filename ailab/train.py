@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*-
 from matplotlib import pyplot as plt
-from ailab.algo.algorithm import *
+import ailab.algo.algorithm as multialgo
 import ailab.data_process
 import time
+import numpy as np
 # from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 
@@ -139,13 +140,13 @@ def train_label(data_all):
     timest = time.time()
 
     if algo == 'libsvm':
-        model = call_libsvm(x_train, y_train, param)
+        model = multialgo.call_libsvm(x_train, y_train, param)
     if algo == 'l1dcd':
-        model = dual_l1dcd(x_train, y_train, param, label_id, label_num)
+        model = multialgo.dual_l1dcd(x_train, y_train, param, label_id, label_num)
     if algo == 'dcd':
-        model = dual_dcd(x_train, y_train, param, label_id, label_num)
+        model = multialgo.dual_dcd(x_train, y_train, param, label_id, label_num)
     if algo == 'admm':
-        model = prim_admm(x_train, y_train, param, label_id, label_num)
+        model = multialgo.prim_admm(x_train, y_train, param, label_id, label_num)
 
     timeed = time.time()
 

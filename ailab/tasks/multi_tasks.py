@@ -1,7 +1,9 @@
 # -*- coding:utf-8 -*-
-from ailab.train import *
-from ailab.data_process import *
+import numpy as np
+import ailab.train as train
+import ailab.data_process as utils
 import glob
+import pymysql
 
 
 # If save data
@@ -49,7 +51,7 @@ class MultiClass:
 
         # load dictionaries
         if not self.__if_load_dict:
-            dict_article, dict_label = load_dictionary(request)
+            dict_article, dict_label = utils.load_dictionary(request)
 
             if len(dict_article) == 0 or len(dict_label) == 0:
                 return []
@@ -93,16 +95,16 @@ class MultiClass:
             self.__if_load_model = True
 
         # extract keywords
-        articlesjieba = articles_jieba(articlesstr)
+        articlesjieba = utils.articles_jieba(articlesstr)
 
         # convert string data to matrix
-        x_data = string_to_matrix_article(self.__dict_article, articlesjieba)
+        x_data = utils.string_to_matrix_article(self.__dict_article, articlesjieba)
 
         # classification
-        y_pred = predict(x_data, self.__model_list, self.__algo)
+        y_pred = train.predict(x_data, self.__model_list, self.__algo)
 
         # get labels
-        labelsstr = matrix_to_string_label(self.__dict_label, y_pred)
+        labelsstr = utils.matrix_to_string_label(self.__dict_label, y_pred)
 
         # print classification results
         if self.__if_show:
@@ -180,7 +182,7 @@ class MultiTrain:
 
         # Get data
         if not self.__if_has_load_data:
-            x_train, y_train, x_test, y_test, err_get = get_data(request, self.__config)
+            x_train, y_train, x_test, y_test, err_get = utils.get_data(request, self.__config)
             # x_train, y_train, x_test, y_test, err_get = get_data_test(200, 20, 60620, 36)  # very simple test data
             # x_train, y_train, x_test, y_test = get_data_file()
 
@@ -205,8 +207,8 @@ class MultiTrain:
             self.__if_has_load_data = True
 
         # train
-        model_list = train_field(self.__x_train, self.__y_train, algo=self.__algo,
-                                 param=self.param, thread=self.options['thread'])
+        model_list = train.train_field(self.__x_train, self.__y_train, algo=self.__algo,
+                                       param=self.param, thread=self.options['thread'])
 
         if len(model_list) == 0:
             # if training is invalid
@@ -225,13 +227,13 @@ class MultiTrain:
 
         # model evaluation on train set.
         print('evaluating model on train set...')
-        y_train_pred = predict(self.__x_train, self.__model_list, self.__algo)
-        print("Accuracy on train:", accuracy(self.__y_train, y_train_pred))
+        y_train_pred = train.predict(self.__x_train, self.__model_list, self.__algo)
+        print("Accuracy on train:", train.accuracy(self.__y_train, y_train_pred))
 
         # model evaluation on test set.
         print('evaluating model on test set...')
-        y_test_pred = predict(self.__x_test, self.__model_list, self.__algo)
-        print("Accuracy on test:", accuracy(self.__y_test, y_test_pred))
+        y_test_pred = train.predict(self.__x_test, self.__model_list, self.__algo)
+        print("Accuracy on test:", train.accuracy(self.__y_test, y_test_pred))
 
         # save prediction to self
         self.__y_train_pred = y_train_pred
@@ -292,7 +294,7 @@ class MultiTrain:
             print('Nothing to do.')
             return
 
-        save_model(self.__model_list, self.__algo, request, output_dir)
+        train.save_model(self.__model_list, self.__algo, request, output_dir)
 
     def plot(self):
 
@@ -302,4 +304,4 @@ class MultiTrain:
             print('Nothing to do.')
             return
 
-        data_plot(self.__y_train, self.__y_test, self.__y_train_pred, self.__y_test_pred)
+        train.data_plot(self.__y_train, self.__y_test, self.__y_train_pred, self.__y_test_pred)

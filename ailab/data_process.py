@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from ailab.db.db import *
+import ailab.db.db
 import numpy as np
 import jieba.analyse
 import progressbar
@@ -355,7 +355,7 @@ def get_data(requestfield='field', config=None, test_part=0.1):
     # field string
 
     # request articles and labels (format: string)
-    data0, articlesstr, err_mysql = medium_content_with(field_str, config)
+    data0, articlesstr, err_mysql = ailab.db.db.medium_content_with(field_str, config)
 
     # if error:
     if err_mysql:
