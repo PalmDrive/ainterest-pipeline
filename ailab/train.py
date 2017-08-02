@@ -2,7 +2,6 @@
 from matplotlib import pyplot as plt
 from ailab.algo.algorithm import *
 import ailab.data_process
-from ailab.libsvm.svmutil import *
 import time
 # from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
@@ -12,6 +11,8 @@ def predict(x_data, model, algo):
     # predict the labels using trained models
 
     if algo == 'libsvm':
+        from ailab.libsvm.svmutil import svm_predict
+
         x_data_libsvm = ailab.data_process.data_to_libsvm_x(x_data)
         y_data_libsvm = ailab.data_process.data_to_libsvm_y(np.ones(shape=len(x_data_libsvm), dtype=np.float64))
 
@@ -22,7 +23,8 @@ def predict(x_data, model, algo):
                 print('classifying data for label {0} in {1}...'.format(i_d + 1, num_label))
                 y_pred_libsvm = svm_predict(y_data_libsvm, x_data_libsvm, model[i_d], '-q')
                 y_pred[:, i_d] = y_pred_libsvm[0]
-                print('Successfully classified data for label {0} in {1}. Algorithm: {2}.'.format(i_d + 1, num_label, algo))
+                print('Successfully classified data for label {0} in {1}. Algorithm: {2}.'
+                      .format(i_d + 1, num_label, algo))
         else:
             print('classifying data...')
             y_pred = np.zeros(shape=len(x_data_libsvm), dtype=np.float64)
@@ -104,6 +106,8 @@ def data_plot(y_train, y_test, y_train_pred, y_test_pred):
 def save_model(model_list, algo, request, output_dir):
 
     if algo == 'libsvm':
+        from ailab.libsvm.svmutil import svm_save_model
+
         for i_d in range(len(model_list)):
             svm_save_model(output_dir + request + "/model_" + str(i_d) + "." + algo, model_list[i_d])
     else:

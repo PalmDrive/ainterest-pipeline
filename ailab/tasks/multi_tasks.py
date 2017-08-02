@@ -73,6 +73,8 @@ class MultiClass:
 
             # load trained model
             if self.__algo == 'libsvm':
+                from ailab.libsvm.svmutil import svm_load_model
+
                 model_num = len(filename_all_chaotic)
                 model_list = []
                 for i_d in range(model_num):

@@ -3,7 +3,6 @@ import tensorflow as tf
 import numpy as np
 # import numba as nb
 # from numba import jit
-from ailab.libsvm.svmutil import *
 
 
 # Primal:
@@ -69,6 +68,8 @@ def shrink(y, nu):
 
 
 def call_libsvm(x_train, y_train, param):
+    from ailab.libsvm.svmutil import svm_train
+
     # train model for each label
     # method: LIBSVM
 
