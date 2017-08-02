@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from ailab.tasks.multi_tasks import MultiClass
+from tasks.multi_tasks import MultiClass
 
 
 class ContentTypeClass(MultiClass):

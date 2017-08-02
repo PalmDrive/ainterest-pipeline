@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from ailab.tasks.position.position_train import PositionTrain
+from tasks.position.position_train import PositionTrain
 
 
 def main():

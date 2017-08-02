@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-import ailab.db.db
+import db.db
 import numpy as np
 import jieba.analyse
 import progressbar
@@ -10,15 +10,20 @@ import glob
 
 def field_index_string(requestfield):
     # get the column index corresponding to the field
-    field_string_all = ['id', 'mediumType', 'link', 'title', 'summary', 'author',
+    field_string_all = ['id', 'mediumType', 'link', 'title', 'summary',
+                        'author',
                         'source', 'keywords', 'labels', 'metaData', 'createdAt',
-                        'updatedAt', 'picurl', 'rating', 'ratingsCount', 'viewsCount',
+                        'updatedAt', 'picurl', 'rating', 'ratingsCount',
+                        'viewsCount',
                         'publishedAt', 'algoRating', 'editorRating', 'topics',
                         'featuredPicUrl', 'postedAt', 'group', 'authorId',
-                        'editorComment', 'relatedArticles', 'fields', 'positions',
+                        'editorComment', 'relatedArticles', 'fields',
+                        'positions',
                         'tags', 'hidden', 'labelledField', 'labelledPosition',
-                        'labelledPerson', 'labelledCompany', 'labelledContentType',
-                        'labelledSentiment', 'simhash', 'contentTypes', 'sentiments',
+                        'labelledPerson', 'labelledCompany',
+                        'labelledContentType',
+                        'labelledSentiment', 'simhash', 'contentTypes',
+                        'sentiments',
                         'video', 'duration', 'publishedAtBak']
 
     # field, position, contentType, sentiment
@@ -40,7 +45,6 @@ def field_index_string(requestfield):
 
 
 def get_labels(data0, field_column):
-
     # get labels for request field
     labelsstr = []
 
@@ -101,7 +105,8 @@ def articles_jieba(articlesstr):
     # store extracted keywords and weight from each article
     articlesjieba = list()
     time.sleep(0.1)
-    jieba.analyse.extract_tags('Dummy')  # to show that the jieba package are successfully initialized
+    jieba.analyse.extract_tags(
+        'Dummy')  # to show that the jieba package are successfully initialized
     time.sleep(0.1)
 
     # number of keywords for each article
@@ -115,7 +120,8 @@ def articles_jieba(articlesstr):
         # one article
         article_str = articlesstr[i_d]
         # extract keywords and corresponding weights for this article
-        article_jieba = jieba.analyse.extract_tags(article_str, topK=topkwords, withWeight=True)
+        article_jieba = jieba.analyse.extract_tags(article_str, topK=topkwords,
+                                                   withWeight=True)
         # article_jieba = jieba.analyse.textrank(article_str, topK=topkwords, withWeight=True)
         articlesjieba.append(article_jieba)
 
@@ -240,7 +246,8 @@ def divide_data(articles, labels, test_part):
 
     # randomly choose some indexes to form a test set, and rest indexes form a train set
     index_all = np.array(range(size_train + size_test))
-    index_test = np.random.choice(size_train + size_test, size=size_test, replace=False)
+    index_test = np.random.choice(size_train + size_test, size=size_test,
+                                  replace=False)
     index_train = np.setdiff1d(index_all, index_test)
     np.random.shuffle(index_train)
 
@@ -290,9 +297,11 @@ def load_dictionary(requestfield):
     dict_label_path = glob.glob(dictpath + "label.txt")
 
     if len(dict_article_path) == 0:
-        print('Article dictionary for {0} was not built yet.'.format(requestfield))
+        print(
+        'Article dictionary for {0} was not built yet.'.format(requestfield))
     if len(dict_label_path) == 0:
-        print('Label dictionary for {0} was not built yet.'.format(requestfield))
+        print(
+        'Label dictionary for {0} was not built yet.'.format(requestfield))
     if len(dict_article_path) == 0 or len(dict_label_path) == 0:
         return dict(), dict()
 
@@ -348,14 +357,13 @@ def data_to_libsvm_y(y_data):
 
 
 def get_data(requestfield='field', config=None, test_part=0.1):
-
     # index for request field
     data_index, field_str = field_index_string(requestfield)
 
     # field string
 
     # request articles and labels (format: string)
-    data0, articlesstr, err_mysql = ailab.db.db.medium_content_with(field_str, config)
+    data0, articlesstr, err_mysql = db.db.medium_content_with(field_str, config)
 
     # if error:
     if err_mysql:

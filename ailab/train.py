@@ -1,21 +1,21 @@
 # -*- coding:utf-8 -*-
 from matplotlib import pyplot as plt
-import ailab.algo.algorithm as multialgo
-import ailab.data_process
+import algo.algorithm as multialgo
 import time
 import numpy as np
 # from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
+import data_process
 
 
 def predict(x_data, model, algo):
     # predict the labels using trained models
 
     if algo == 'libsvm':
-        from ailab.libsvm.svmutil import svm_predict
+        from libsvm.svmutil import svm_predict
 
-        x_data_libsvm = ailab.data_process.data_to_libsvm_x(x_data)
-        y_data_libsvm = ailab.data_process.data_to_libsvm_y(np.ones(shape=len(x_data_libsvm), dtype=np.float64))
+        x_data_libsvm = data_process.data_to_libsvm_x(x_data)
+        y_data_libsvm = data_process.data_to_libsvm_y(np.ones(shape=len(x_data_libsvm), dtype=np.float64))
 
         if isinstance(model, list):
             num_label = len(model)
@@ -107,7 +107,7 @@ def data_plot(y_train, y_test, y_train_pred, y_test_pred):
 def save_model(model_list, algo, request, output_dir):
 
     if algo == 'libsvm':
-        from ailab.libsvm.svmutil import svm_save_model
+        from libsvm.svmutil import svm_save_model
 
         for i_d in range(len(model_list)):
             svm_save_model(output_dir + request + "/model_" + str(i_d) + "." + algo, model_list[i_d])
@@ -173,8 +173,8 @@ def train_field(x_train, y_train, algo, param, thread):  # unfinished
         # Convert to LIBSVM format
         print('Converting data to LIBSVM format.')
         print('converting...')
-        x_train = ailab.data_process.data_to_libsvm_x(x_train)
-        y_train = ailab.data_process.data_to_libsvm_y(y_train)
+        x_train = data_process.data_to_libsvm_x(x_train)
+        y_train = data_process.data_to_libsvm_y(y_train)
         print('Successfully converted data to LIBSVM format.')
 
     # prepare data for multi-thread training

@@ -2,7 +2,7 @@
 import pymysql
 import progressbar
 import time
-import ailab.config
+import config as lib_config
 
 
 TEST_MODE = False
@@ -12,7 +12,7 @@ def medium_content_with(request_str, config=None):
     # load data from mySQL server
 
     if config is None:
-        config = ailab.config.config_load
+        config = lib_config.config_load
 
     # make a connection
     try:  # if succeed

@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import numpy as np
-import ailab.train as train
-import ailab.data_process as utils
+import train as train
+import data_process as utils
 import glob
 import pymysql
 

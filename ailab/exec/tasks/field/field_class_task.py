@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from ailab.tasks.contentType.contentType_class import ContentTypeClass
+from tasks.field.field_class import FieldClass
 
 
 def main():
@@ -9,7 +9,7 @@ def main():
     articlesstr_2 = ['This is a good classifier.', '也可以处理列表']
 
     # class
-    a = ContentTypeClass()
+    a = FieldClass()
 
     a.algorithm('l1dcd')
 

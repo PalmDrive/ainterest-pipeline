@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
-from ailab.tasks.contentType.contentType_train import ContentTypeTrain
+from tasks.field.field_train import FieldTrain
 
 
 def main():
     # class
-    a = ContentTypeTrain()
+    a = FieldTrain()
 
     a.connect({'host': '127.0.0.1', 'user': 'myaccount', 'passwd': 'mypassword',
                'db': 'database', 'charset': 'utf8'})
