@@ -4,7 +4,7 @@ from ailab.tasks.multi_tasks import MultiTrain
 
 class ContentTypeTrain(MultiTrain):
 
-    def __init__(self, output_dir="output"):
+    def __init__(self, output_dir="../../../output/"):
         MultiTrain.__init__(self)
 
         # not editable
