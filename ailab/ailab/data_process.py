@@ -328,11 +328,13 @@ def data_to_libsvm_x(x_data):
 
     x_data_libsvm = list()
 
-    key0 = list(range(1, x_data[0].shape[0] + 1))
-
     # x data
     for d in x_data:
-        x_data_libsvm.append(dict(zip(key0, d.tolist())))
+        items = dict()
+        for i_d in range(len(d)):
+            if d[i_d] != 0:
+                items[i_d + 1] = d[i_d]
+        x_data_libsvm.append(items)
 
     return x_data_libsvm
 
