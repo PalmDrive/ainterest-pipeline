@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-from matplotlib import pyplot as plt
 import ailab.algo.algorithm as multialgo
 import time
 import numpy as np
@@ -72,7 +71,7 @@ def accuracy(y_data, y_pred):
 
     return cor_data.mean()
 
-
+'''
 def data_plot(y_train, y_test, y_train_pred, y_test_pred):
     l_train = list(range(y_train.shape[0]))
     l_test = list(range(y_test.shape[0]))
@@ -102,6 +101,7 @@ def data_plot(y_train, y_test, y_train_pred, y_test_pred):
             ax2.legend(handles=[line_test, line_test_pred], loc=7)
 
     plt.show()
+'''
 
 
 def save_model(model_list, algo, request, output_dir):
