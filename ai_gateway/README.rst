@@ -1,42 +1,22 @@
-django-project-skeleton
-=======================
-
-**django-project-skeleton** is my skeleton for Django projects. It provides a
-directory structure for Django projects during development and deployment.
-
-
-Meta
-----
-
-Author:
-    Mischback
-
-Status:
-    maintained, in development
-
-Version:
-    1.1
-
-Django Version:
-    1.8
-
-
-
 Usage
------
 
-To use this repository just use the ``template`` option of `django-admin
-<https://docs.djangoproject.com/en/1.8/ref/django-admin/#startproject-projectname-destination>`_::
+启动server
 
-    $ django-admin startproject --template=https://github.com/Mischback/django-project-skeleton/archive/development.zip [projectname]
+```
+virtualenv env
+source env/bin/activate
 
-If you wish to automagically fill the ``apache2_vhost.sample`` the command is::
+pip install -r requirements.txt
+# 如果install ailab 失败 run: pip install --upgrade "git+ssh://git@github.com/PalmDrive/ainterest-pipeline.git#egg=ailab&subdirectory=ailab"
 
-    $ django-admin startproject --template=https://github.com/Mischback/django-project-skeleton/archive/development.zip --name apache2_vhost.sample [projectname]
+python manage.py runserver 8080
+
+```
+
+client请求
 
 
-Documentation
--------------
-
-You can see the documentation over at **Read the Docs**: `django-project-skeleton
-<http://django-project-skeleton.readthedocs.org/en/latest/>`_
+```
+//其中 type是分类类型, content 是文章string
+curl -H "Content-Type: application/json" -X GET -d '{"type":"field","content":"xyz"}' localhost:8080/api/classify
+```

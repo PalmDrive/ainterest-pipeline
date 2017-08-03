@@ -3,10 +3,15 @@ from __future__ import unicode_literals
 
 import json
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+
+from api import classifiers
 
 
 def classify(request):
     data = json.loads(request.body)
-    print data
-    return HttpResponse("Hello, world. You're at the polls index.")
+    classifier = classifiers[data['type']]
+    print classifier
+    #result = classifier.classify(data['content'])
+    result = ['ta', 'adf']
+    return JsonResponse({'status': 'ok', 'result': result})
