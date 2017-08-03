@@ -4,7 +4,7 @@ from ailab.tasks.multi_tasks import MultiClass
 
 class ContentTypeClass(MultiClass):
 
-    def __init__(self, model_dir="output"):
+    def __init__(self, model_dir="../../../output/"):
         MultiClass.__init__(self)
 
         # not editable

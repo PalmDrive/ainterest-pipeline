@@ -52,7 +52,7 @@ class MultiClass:
 
         # load dictionaries
         if not self.__if_load_dict:
-            dict_article, dict_label = utils.load_dictionary(request)
+            dict_article, dict_label = utils.load_dictionary(request, model_dir)
 
             if len(dict_article) == 0 or len(dict_label) == 0:
                 return []

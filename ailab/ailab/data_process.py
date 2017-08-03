@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-import db.db
+import ailab.db.db
 import numpy as np
 import jieba.analyse
 import progressbar
@@ -266,9 +266,8 @@ def divide_data(articles, labels, test_part):
     return x_train, y_train, x_test, y_test
 
 
-def save_dictionary(dict_article, dict_label, requestfield):
+def save_dictionary(dict_article, dict_label, requestfield, outputdir):
     # save dictionaries
-    outputdir = "../../output/"
     outputpath = outputdir + requestfield + "/dict_"
 
     fieldnames = ['keywords', 'index']
@@ -288,9 +287,8 @@ def save_dictionary(dict_article, dict_label, requestfield):
     print('Successfully saved dictionaries.')
 
 
-def load_dictionary(requestfield):
+def load_dictionary(requestfield, dictdir):
     # load dictionaries
-    dictdir = "../../output/"
     dictpath = dictdir + requestfield + "/dict_"
 
     dict_article_path = glob.glob(dictpath + "article.txt")
@@ -356,14 +354,14 @@ def data_to_libsvm_y(y_data):
     return y_data_libsvm
 
 
-def get_data(requestfield='field', config=None, test_part=0.1):
+def get_data(requestfield='field', config=None, test_part=0.1, outputdir='../../../output/'):
     # index for request field
     data_index, field_str = field_index_string(requestfield)
 
     # field string
 
     # request articles and labels (format: string)
-    data0, articlesstr, err_mysql = db.db.medium_content_with(field_str, config)
+    data0, articlesstr, err_mysql = ailab.db.db.medium_content_with(field_str, config)
 
     # if error:
     if err_mysql:
@@ -388,7 +386,7 @@ def get_data(requestfield='field', config=None, test_part=0.1):
     dict_article, dict_label = build_dictionary(articlesjieba, labelsstr)
 
     # save data
-    save_dictionary(dict_article, dict_label, requestfield)
+    save_dictionary(dict_article, dict_label, requestfield, outputdir)
 
     # convert string data to float matrix
     articles = string_to_matrix_article(dict_article, articlesjieba)
