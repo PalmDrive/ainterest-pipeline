@@ -7,5 +7,5 @@ default_app_config = 'api.apps.ApiConfig'
 classifiers = {
     'field': FieldClass('../ailab/output/field'),
     'position': PositionClass('../ailab/output/position'),
-    'content_type': ContentTypeClass('../ailab/output/contentType'),
+    'content_type': ContentTypeClass('../ailab/output/content_type'),
 }
