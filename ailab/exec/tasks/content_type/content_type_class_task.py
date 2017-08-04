@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from ailab.tasks.contentType.contentType_class import ContentTypeClass
+from ailab.tasks.content_type.content_type_class import ContentTypeClass
 
 
 def main():

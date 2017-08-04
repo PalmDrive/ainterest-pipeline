@@ -266,9 +266,9 @@ def divide_data(articles, labels, test_part):
     return x_train, y_train, x_test, y_test
 
 
-def save_dictionary(dict_article, dict_label, requestfield, outputdir):
+def save_dictionary(dict_article, dict_label, outputdir):
     # save dictionaries
-    outputpath = outputdir + requestfield + "/dict_"
+    outputpath = outputdir + "/dict_"
 
     fieldnames = ['keywords', 'index']
 
@@ -287,19 +287,19 @@ def save_dictionary(dict_article, dict_label, requestfield, outputdir):
     print('Successfully saved dictionaries.')
 
 
-def load_dictionary(requestfield, dictdir):
+def load_dictionary(dictdir):
     # load dictionaries
-    dictpath = dictdir + requestfield + "/dict_"
+    dictpath = dictdir + "/dict_"
 
     dict_article_path = glob.glob(dictpath + "article.txt")
     dict_label_path = glob.glob(dictpath + "label.txt")
 
     if len(dict_article_path) == 0:
         print(
-        'Article dictionary for {0} was not built yet.'.format(requestfield))
+        'Article dictionary was not found here: {0}.'.format(dictdir))
     if len(dict_label_path) == 0:
         print(
-        'Label dictionary for {0} was not built yet.'.format(requestfield))
+        'Label dictionary was not found here: {0}.'.format(dictdir))
     if len(dict_article_path) == 0 or len(dict_label_path) == 0:
         return dict(), dict()
 
@@ -356,7 +356,7 @@ def data_to_libsvm_y(y_data):
     return y_data_libsvm
 
 
-def get_data(requestfield='field', config=None, test_part=0.1, outputdir='../../../output/'):
+def get_data(requestfield='field', config=None, test_part=0.1, outputdir='../../../output'):
     # index for request field
     data_index, field_str = field_index_string(requestfield)
 
@@ -388,7 +388,7 @@ def get_data(requestfield='field', config=None, test_part=0.1, outputdir='../../
     dict_article, dict_label = build_dictionary(articlesjieba, labelsstr)
 
     # save data
-    save_dictionary(dict_article, dict_label, requestfield, outputdir)
+    save_dictionary(dict_article, dict_label, outputdir)
 
     # convert string data to float matrix
     articles = string_to_matrix_article(dict_article, articlesjieba)

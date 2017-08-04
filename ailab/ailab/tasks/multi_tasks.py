@@ -40,7 +40,7 @@ class MultiClass:
         # If show classified results
         self.__if_show = IF_SHOW_RESULT
 
-    def multi_classify(self, articlesstr_in, request, model_dir):
+    def multi_classify(self, articlesstr_in, model_dir):
         # request = 'field', 'contentType', 'position'
 
         is_str = isinstance(articlesstr_in, str)
@@ -52,7 +52,7 @@ class MultiClass:
 
         # load dictionaries
         if not self.__if_load_dict:
-            dict_article, dict_label = utils.load_dictionary(request, model_dir)
+            dict_article, dict_label = utils.load_dictionary(model_dir)
 
             if len(dict_article) == 0 or len(dict_label) == 0:
                 return []
@@ -69,7 +69,7 @@ class MultiClass:
         if not self.__if_load_model:
 
             # if model exist
-            filename_all_chaotic = glob.glob(model_dir + request + "/*." + self.__algo)
+            filename_all_chaotic = glob.glob(model_dir + "/*." + self.__algo)
             if len(filename_all_chaotic) == 0:
                 print('Model for algorithm {0} does not exist yet. Train it if needed.'.format(self.__algo))
                 return []
@@ -81,11 +81,11 @@ class MultiClass:
                 model_num = len(filename_all_chaotic)
                 model_list = []
                 for i_d in range(model_num):
-                    model_i = svm_load_model(model_dir + request + "/model_{0}.".format(i_d) + self.__algo)
+                    model_i = svm_load_model(model_dir + "/model_{0}.".format(i_d) + self.__algo)
                     model_list.append(model_i)
             else:
-                w = np.loadtxt(model_dir + request + "/w_train." + self.__algo)
-                b = np.loadtxt(model_dir + request + "/b_train." + self.__algo)
+                w = np.loadtxt(model_dir + "/w_train." + self.__algo)
+                b = np.loadtxt(model_dir + "/b_train." + self.__algo)
                 model_list = [w, b]
 
             self.__model_list = model_list
@@ -183,7 +183,7 @@ class MultiTrain:
 
         # Get data
         if not self.__if_has_load_data:
-            x_train, y_train, x_test, y_test, err_get = utils.get_data(request, self.__config)
+            x_train, y_train, x_test, y_test, err_get = utils.get_data(request, self.__config, output_dir)
             # x_train, y_train, x_test, y_test, err_get = get_data_test(200, 20, 60620, 36)  # very simple test data
             # x_train, y_train, x_test, y_test = get_data_file()
 
@@ -246,7 +246,7 @@ class MultiTrain:
 
         # if save model
         if self.__if_save:
-            self.multi_save(request, output_dir)
+            self.multi_save(output_dir)
 
         # if plot training results
         if self.__if_plot:
@@ -287,7 +287,7 @@ class MultiTrain:
     def thread(self, thread):
         self.options['thread'] = thread
 
-    def multi_save(self, request, output_dir):
+    def multi_save(self, output_dir):
 
         # if has not trained
         if not self.__if_has_trained:
@@ -295,7 +295,7 @@ class MultiTrain:
             print('Nothing to do.')
             return
 
-        train.save_model(self.__model_list, self.__algo, request, output_dir)
+        train.save_model(self.__model_list, self.__algo, output_dir)
 
     def plot(self):
 

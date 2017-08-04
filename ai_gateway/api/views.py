@@ -11,7 +11,6 @@ from api import classifiers
 def classify(request):
     data = json.loads(request.body)
     classifier = classifiers[data['type']]
-    print classifier
-    #result = classifier.classify(data['content'])
-    result = ['ta', 'adf']
+    result = classifier.classify(data['content'].encode('utf-8'))
+    # result = ['ta', 'adf']
     return JsonResponse({'status': 'ok', 'result': result})
