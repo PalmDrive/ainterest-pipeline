@@ -4,7 +4,7 @@ from ailab.tasks.multi_tasks import MultiClass
 
 class PositionClass(MultiClass):
 
-    def __init__(self, model_dir="../../../output/"):
+    def __init__(self, model_dir="../../../output/position"):
         MultiClass.__init__(self)
 
         # not editable
@@ -12,5 +12,5 @@ class PositionClass(MultiClass):
         self.__model_dir = model_dir
 
     def classify(self, articlesstr):
-        labelsstr = MultiClass.multi_classify(self, articlesstr, self.__request, self.__model_dir)
+        labelsstr = MultiClass.multi_classify(self, articlesstr, self.__model_dir)
         return labelsstr

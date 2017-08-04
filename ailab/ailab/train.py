@@ -71,8 +71,10 @@ def accuracy(y_data, y_pred):
 
     return cor_data.mean()
 
-'''
+
 def data_plot(y_train, y_test, y_train_pred, y_test_pred):
+    import matplotlib.pyplot as plt
+
     l_train = list(range(y_train.shape[0]))
     l_test = list(range(y_test.shape[0]))
 
@@ -101,19 +103,18 @@ def data_plot(y_train, y_test, y_train_pred, y_test_pred):
             ax2.legend(handles=[line_test, line_test_pred], loc=7)
 
     plt.show()
-'''
 
 
-def save_model(model_list, algo, request, output_dir):
+def save_model(model_list, algo, output_dir):
 
     if algo == 'libsvm':
         from ailab.libsvm.svmutil import svm_save_model
 
         for i_d in range(len(model_list)):
-            svm_save_model(output_dir + request + "/model_" + str(i_d) + "." + algo, model_list[i_d])
+            svm_save_model(output_dir + "/model_" + str(i_d) + "." + algo, model_list[i_d])
     else:
-        np.savetxt(output_dir + request + "/w_train." + algo, model_list[0])
-        np.savetxt(output_dir + request + "/b_train." + algo, model_list[1])
+        np.savetxt(output_dir + "/w_train." + algo, model_list[0])
+        np.savetxt(output_dir + "/b_train." + algo, model_list[1])
 
 
 def train_label(data_all):
