@@ -14,7 +14,7 @@ class DB:
     def __init__(self, config=None):
 
         if config is None:
-            with open('../../../config/config0.yaml', 'r') as read_file:
+            with open('../../../config/config.yaml', 'r') as read_file:
                 self.__config = yaml.load(read_file)
         else:
             self.__config = config
@@ -22,7 +22,7 @@ class DB:
     def set_config(self, config=None):
 
         if config is None:
-            with open('../../../config/config0.yaml', 'r') as read_file:
+            with open('../../../config/config.yaml', 'r') as read_file:
                 self.__config = yaml.load(read_file)
         else:
             self.__config = config
