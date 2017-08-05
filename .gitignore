@@ -105,3 +105,9 @@ ENV/
 /ailab/output/content_type/*
 /ailab/output/field/*
 /ailab/output/position/*
+
+# ailab config
+/ailab/config/*
+
+# ailab test
+/ailab/test/*

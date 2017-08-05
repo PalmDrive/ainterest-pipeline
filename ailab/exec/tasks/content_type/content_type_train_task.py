@@ -6,8 +6,7 @@ def main():
     # class
     a = ContentTypeTrain()
 
-    a.connect({'host': '127.0.0.1', 'user': 'myaccount', 'passwd': 'mypassword',
-               'db': 'database', 'charset': 'utf8'})
+    a.connect()
 
     # algorithm
     a.algorithm('l1dcd')

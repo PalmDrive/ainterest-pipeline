@@ -11,6 +11,6 @@ class PositionClass(MultiClass):
         self.__request = 'position'
         self.__model_dir = model_dir
 
-    def classify(self, articlesstr):
-        labelsstr = MultiClass.multi_classify(self, articlesstr, self.__model_dir)
-        return labelsstr
+    def classify(self, articles_str):
+        labels_str = MultiClass.multi_classify(self, articles_str, self.__model_dir)
+        return labels_str
