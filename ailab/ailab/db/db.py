@@ -3,7 +3,7 @@ import pymysql
 import progressbar
 import time
 import yaml
-# from ailab.config import config_load
+import os
 
 
 TEST_MODE = False
@@ -13,21 +13,56 @@ class DB:
 
     def __init__(self, config=None):
 
-        if config is None:
-            with open('../../../config/config.yaml', 'r') as read_file:
-                self.__config = yaml.load(read_file)
-        else:
-            self.__config = config
+        self.__config = None
+
+        self.set_config(config)
 
     def set_config(self, config=None):
 
+        # if empty or None: do nothing
         if config is None:
-            with open('../../../config/config.yaml', 'r') as read_file:
-                self.__config = yaml.load(read_file)
-        else:
+            return self.__config
+
+        # if config is a path or a directory
+        if not isinstance(config, dict):
+
+            # if is dir
+            if os.path.isdir(config):
+                config_path = os.path.join(config, 'config.yaml')
+            else:
+                config_path = config
+
+            # if file does not exist
+            if not os.path.isfile(config_path):
+                print('Config file does not exist here:')
+                print('\t' + config_path)
+                return self.__config
+
+            # load config from file
+            with open(config_path, 'r') as read_file:
+                config = yaml.load(read_file)
+
+        # old config
+        config_old = self.__config
+
+        # if old config is empty
+        if config_old is None:
             self.__config = config
+            return self.__config
+
+        # users might set only part of the configuration
+        for key in config:
+            config_old[key] = config[key]
+        config = config_old
+
+        # set
+        self.__config = config
+
+        return self.__config
 
     def test_connect(self):
+
+        # exam the format of config
         config = self.__config
 
         if config is None:
@@ -38,10 +73,24 @@ class DB:
 
             return err
 
+        # if all keywords are OK
+        connect_key_all = ['host', 'user', 'passwd', 'db', 'charset']
+        for connect_key in connect_key_all:
+            # if not satisfied
+            if not config.__contains__(connect_key):
+                print("keyword: '{0}' is needed for connection."
+                      .format(connect_key))
+                print('Connection failed.')
+
+                err = True
+
+                return err
+
         # try to make a connection
         try:  # if succeed
             conn = pymysql.connect(host=config['host'], user=config['user'],
-                                   passwd=config['passwd'], db=config['db'])
+                                   passwd=config['passwd'], db=config['db'],
+                                   charset=config['charset'])
             conn.close()
 
             # announcement

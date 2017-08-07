@@ -204,9 +204,9 @@ class MultiTrain:
         # Get data
         if not self.__if_has_load_data:
 
-            # x_train, y_train, x_test, y_test, err_get = utils.get_data(request, self.__config, output_dir=output_dir)
+            x_train, y_train, x_test, y_test, err_get = utils.get_data(request, self.__config, output_dir=output_dir)
             # x_train, y_train, x_test, y_test, err_get = get_data_test(200, 20, 60620, 36)  # very simple test data
-            x_train, y_train, x_test, y_test, err_get = utils.get_data_file()
+            # x_train, y_train, x_test, y_test, err_get = utils.get_data_file()
 
             # if error
             if err_get:
@@ -277,36 +277,10 @@ class MultiTrain:
 
     def connect(self, config=None):
 
-        if config is not None:
-            # if config is not None, users might set only part of the configuration
-            config_old = self.__config
-
-            # full configuration
-            if config_old is not None:
-                for key in config:
-                    config_old[key] = config[key]
-                config = config_old
-
         # set
-        self.__config = config
-
-        if self.__config is not None:
-            # if all keywords are OK
-            connect_key_all = ['host', 'user', 'passwd', 'db', 'charset']
-
-            for connect_key in connect_key_all:
-                # if not enough
-                if not config.__contains__(connect_key):
-                    print("keyword: '{0}' is needed for connection."
-                          .format(connect_key))
-                    print('Connection failed.')
-
-                    connect_err = True
-
-                    return connect_err
+        self.__config = self.__db.set_config(config)
 
         # test the connection via class DB
-        self.__db.set_config(config)
         connect_err = self.__db.test_connect()
 
         return connect_err

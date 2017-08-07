@@ -108,10 +108,10 @@ ENV/
 /ailab/output/tmp/*
 
 # ailab config
-/ailab/config/*
+# /ailab/exec/config/*
 
 # ailab test
 /ailab/test/*
 
 # ailab libsvm
-/ailab/ailab/libsvm/*
+# /ailab/ailab/libsvm

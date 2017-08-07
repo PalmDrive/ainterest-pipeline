@@ -137,7 +137,14 @@ def articles_to_jieba(articles_str):
         # extract keywords and corresponding weights for this article
         tmp = ja.extract_tags(article, topK=top_k, withWeight=True)
         # tmp = ja.textrank(article, topK=top_k, withWeight=True)
-        articles_jieba.append(tmp)
+
+        # convert unicode to string
+        tmp_str = []
+        for tmp_i in tmp:
+            tmp_str.append((tmp_i[0].encode('utf-8'), tmp_i[1]))
+
+        # append
+        articles_jieba.append(tmp_str)
 
     # finish
     time.sleep(0.1)
@@ -300,7 +307,7 @@ def save_dictionary(dict_article, dict_label, output_dir):
         writer = csv.DictWriter(f_wright, fieldnames=fieldnames)
         writer.writeheader()
         for key, val in dict_article.items():
-            writer.writerow({fieldnames[0]: key.encode('utf-8'), fieldnames[1]: val})
+            writer.writerow({fieldnames[0]: key, fieldnames[1]: val})
 
     # open and write data
     with open(output_path + 'label.txt', 'w') as f_wright:
@@ -486,7 +493,3 @@ def get_data_file():
     articles_str = ['这是一篇示例文章', '还有一篇文章，测试']
 
     return articles_str
-
-    # load them
-
-    # return []

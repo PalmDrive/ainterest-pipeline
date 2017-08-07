@@ -4,9 +4,9 @@ from ailab.tasks.field.field_train import FieldTrain
 
 def main():
     # class
-    a = FieldTrain()
+    a = FieldTrain(output_dir="../../../output/field")
 
-    a.connect()
+    a.connect('../../config/config.yaml')
 
     # algorithm
     a.algorithm('l1dcd')

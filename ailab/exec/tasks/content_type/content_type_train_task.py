@@ -6,15 +6,13 @@ def main():
     # class
     a = ContentTypeTrain(output_dir="../../../output/content_type")
 
-    a.connect()
+    a.connect('../../config/config.yaml')
 
     # algorithm
-    a.algorithm('libsvm')
-
-    a.param = {'libsvm': '-t 2 -c 10 -g 0.01 -e 0.00001'}
+    a.algorithm('l1dcd')
 
     # thread
-    a.thread(8)
+    a.thread(4)
 
     # train
     a.train()

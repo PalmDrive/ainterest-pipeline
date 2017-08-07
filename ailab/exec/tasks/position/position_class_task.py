@@ -5,7 +5,7 @@ from ailab.tasks.position.position_class import PositionClass
 def main():
     # data
     # articles_str = get_data_file()
-    articles_str_1 = 'This is a good classifier.'
+    articles_str_1 = '心理学, 诸如, 各位, 经典, 艺术'
     articles_str_2 = ['This is a good classifier.', '也可以处理列表']
 
     # class

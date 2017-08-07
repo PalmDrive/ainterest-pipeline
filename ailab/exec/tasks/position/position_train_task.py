@@ -4,9 +4,9 @@ from ailab.tasks.position.position_train import PositionTrain
 
 def main():
     # class
-    a = PositionTrain()
+    a = PositionTrain(output_dir="../../../output/position")
 
-    a.connect()
+    a.connect('../../config/config.yaml')
 
     # algorithm
     a.algorithm('l1dcd')
