@@ -203,9 +203,10 @@ class MultiTrain:
 
         # Get data
         if not self.__if_has_load_data:
-            x_train, y_train, x_test, y_test, err_get = utils.get_data(request, self.__config, output_dir)
+
+            # x_train, y_train, x_test, y_test, err_get = utils.get_data(request, self.__config, output_dir=output_dir)
             # x_train, y_train, x_test, y_test, err_get = get_data_test(200, 20, 60620, 36)  # very simple test data
-            # x_train, y_train, x_test, y_test = get_data_file()
+            x_train, y_train, x_test, y_test, err_get = utils.get_data_file()
 
             # if error
             if err_get:

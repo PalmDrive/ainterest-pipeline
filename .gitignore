@@ -105,9 +105,13 @@ ENV/
 /ailab/output/content_type/*
 /ailab/output/field/*
 /ailab/output/position/*
+/ailab/output/tmp/*
 
 # ailab config
 /ailab/config/*
 
 # ailab test
 /ailab/test/*
+
+# ailab libsvm
+/ailab/ailab/libsvm/*

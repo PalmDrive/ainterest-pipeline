@@ -5,6 +5,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 import numpy as np
 import ailab.algo.algorithm as ag
 import ailab.algo.data_process as dp
+import matplotlib.pyplot as plt
 
 
 def accuracy(y_data, y_predict):
@@ -32,13 +33,14 @@ def accuracy_plot(y_train, y_test, y_train_predict, y_test_predict):
         accuracy_plot_fig(y_train, y_test, y_train_predict, y_test_predict)
     else:  # multi labels
         for i_d in range(y_train.shape[1]):
-            accuracy_plot_fig(y_train, y_test[:, i_d],
-                              y_train_predict, y_test_predict[:, i_d])
+            accuracy_plot_fig(y_train[:, i_d], y_test[:, i_d],
+                              y_train_predict[:, i_d], y_test_predict[:, i_d])
+
+    # show
+    plt.show()
 
 
 def accuracy_plot_fig(y_train, y_test, y_train_predict, y_test_predict):
-    # import package
-    import matplotlib.pyplot as plt
 
     # get index
     l_train = list(range(y_train.shape[0]))
@@ -74,9 +76,6 @@ def accuracy_plot_fig(y_train, y_test, y_train_predict, y_test_predict):
 
     # legend
     ax2.legend(handles=[line_test, line_test_predict], loc=7)
-
-    # show
-    plt.show()
 
 
 def save_model(model_list, algorithm, output_dir):

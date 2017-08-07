@@ -4,15 +4,17 @@ from ailab.tasks.content_type.content_type_train import ContentTypeTrain
 
 def main():
     # class
-    a = ContentTypeTrain()
+    a = ContentTypeTrain(output_dir="../../../output/content_type")
 
     a.connect()
 
     # algorithm
-    a.algorithm('l1dcd')
+    a.algorithm('libsvm')
+
+    a.param = {'libsvm': '-t 2 -c 10 -g 0.01 -e 0.00001'}
 
     # thread
-    a.thread(4)
+    a.thread(8)
 
     # train
     a.train()

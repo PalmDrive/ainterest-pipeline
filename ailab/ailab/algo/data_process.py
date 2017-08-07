@@ -236,7 +236,8 @@ def matrix_to_string_label(dict_label, labels):
     s_d, s_l = labels.shape
 
     # dictionary to a list
-    d_list = list(dict_label.keys())
+    d_keys = list(dict_label.keys())
+    d_values = list(dict_label.values())
 
     # labels as string
     labels_str = []
@@ -244,7 +245,7 @@ def matrix_to_string_label(dict_label, labels):
     # for each record
     for i_d in range(s_d):
         tmp = labels[i_d]
-        label_tmp = [d_list[j_d] for j_d in range(s_l) if tmp[j_d] == 1]
+        label_tmp = [d_keys[d_values.index(j_d)] for j_d in range(s_l) if tmp[j_d] == 1]
         labels_str.append(label_tmp)
 
     # finish
@@ -299,7 +300,7 @@ def save_dictionary(dict_article, dict_label, output_dir):
         writer = csv.DictWriter(f_wright, fieldnames=fieldnames)
         writer.writeheader()
         for key, val in dict_article.items():
-            writer.writerow({fieldnames[0]: key, fieldnames[1]: val})
+            writer.writerow({fieldnames[0]: key.encode('utf-8'), fieldnames[1]: val})
 
     # open and write data
     with open(output_path + 'label.txt', 'w') as f_wright:
@@ -400,7 +401,7 @@ def data_to_libsvm_y(y_data):
     return y_data_libsvm
 
 
-def get_data(request_field='field', config=None, test_part=0.1, outputdir='../../../output'):
+def get_data(request_field='field', config=None, test_part=0.1, output_dir='../../../output'):
     # index and string for requested field
     data_index, field_str = field_index_string(request_field)
 
@@ -433,7 +434,7 @@ def get_data(request_field='field', config=None, test_part=0.1, outputdir='../..
     dict_article, dict_label = build_dictionary(articles_jieba, labels_str)
 
     # save data
-    save_dictionary(dict_article, dict_label, outputdir)
+    save_dictionary(dict_article, dict_label, output_dir)
 
     # convert string data to float matrix
     articles = string_to_matrix_article(dict_article, articles_jieba)
@@ -485,3 +486,7 @@ def get_data_file():
     articles_str = ['这是一篇示例文章', '还有一篇文章，测试']
 
     return articles_str
+
+    # load them
+
+    # return []
