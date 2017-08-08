@@ -4,10 +4,9 @@ from ailab.tasks.position.position_train import PositionTrain
 
 def main():
     # class
-    a = PositionTrain()
+    a = PositionTrain(output_dir="../../../output/position")
 
-    a.connect({'host': '127.0.0.1', 'user': 'myaccount', 'passwd': 'mypassword',
-               'db': 'database', 'charset': 'utf8'})
+    a.connect('../../config/config.yaml')
 
     # algorithm
     a.algorithm('l1dcd')

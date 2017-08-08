@@ -24,7 +24,7 @@ import numpy as np
 #                     |beta_i| <= D
 
 # BATCH_SIZE = 100  # The number of training examples to use per training step.
-# In fact, we do not use minibatch.
+# In fact, we do not use mini-batch.
 
 
 # If show total loss
@@ -35,8 +35,8 @@ SHOW_LOSS = True
 #      nopython=True, cache=True)
 def loss_label(x_data, y_data, w_train, b_train, zero_par, param):
 
-    svmc = param['C']
-    svmd = param['D']
+    svm_c = param['C']
+    svm_d = param['D']
 
     # raw
     y_raw = np.zeros(shape=x_data.shape[0], dtype=np.float64)
@@ -54,7 +54,7 @@ def loss_label(x_data, y_data, w_train, b_train, zero_par, param):
     l1_loss = np.sum(np.abs(w_train))
 
     # total loss
-    svm_loss = regularization_loss + svmc * hinge_loss + svmd * l1_loss
+    svm_loss = regularization_loss + svm_c * hinge_loss + svm_d * l1_loss
 
     return svm_loss
 
@@ -68,6 +68,7 @@ def shrink(y, nu):
 
 
 def call_libsvm(x_train, y_train, param):
+    # import library SVM
     from ailab.libsvm.svmutil import svm_train
 
     # train model for each label
@@ -75,7 +76,7 @@ def call_libsvm(x_train, y_train, param):
 
     # train data
     x_data = x_train
-    y_data = y_train.copy()
+    y_data = y_train[:]
 
     # Convert labels to +1,-1
     y_data[y_data == 0] = -1
@@ -89,8 +90,8 @@ def dual_l1dcds(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: dual coordinate descent with Random Permutation
     # reference: A Dual Coordinate Descent Method for Large-scale Linear SVM [Hsieh et al, 2008, ICML]
-    # fast and available for high dimentional data
-    # we add a L1 penalty (SVMD not zero) in order to get a sparse weight vector
+    # fast and available for high dimensional data
+    # we add a L1 penalty (SVM-D not zero) in order to get a sparse weight vector
     # it could take about 3 hours for training the whole field 'labelledField', if we set the err_loss to be 1e-6
     # maybe we could consider the shrinking to speed up. reference: [Hsieh et al, 2008, ICML]
 
@@ -101,8 +102,8 @@ def dual_l1dcds(x_train, y_train, param, label_id, label_num):
     y_data[:] = y_train
 
     # parameters
-    svmc = param['C']
-    svmd = param['D']
+    svm_c = param['C']
+    svm_d = param['D']
     err_loss = param['err']
     max_epoch = param['max_epoch']
 
@@ -117,8 +118,8 @@ def dual_l1dcds(x_train, y_train, param, label_id, label_num):
 
     # parameters
     q_par = np.linalg.norm(x_data, ord=2, axis=1)**2
-    m_par = svmd * np.ones(shape=size_dim, dtype=np.float64)
-    u_par = svmc
+    m_par = svm_d * np.ones(shape=size_dim, dtype=np.float64)
+    u_par = svm_c
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
 
     # initialize variables
@@ -229,8 +230,8 @@ def dual_l1dcd_test(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: dual coordinate descent with Random Permutation
     # reference: A Dual Coordinate Descent Method for Large-scale Linear SVM [Hsieh et al, 2008, ICML]
-    # fast and available for high dimentional data
-    # we add a L1 penalty (SVMD not zero) in order to get a sparse weight vector
+    # fast and available for high dimensional data
+    # we add a L1 penalty (SVM-D not zero) in order to get a sparse weight vector
     # it could take about 3 hours for training the whole field 'labelledField', if we set the err_loss to be 1e-6
     # maybe we could consider the shrinking to speed up. reference: [Hsieh et al, 2008, ICML]
 
@@ -243,8 +244,8 @@ def dual_l1dcd_test(x_train, y_train, param, label_id, label_num):
     y_data[:] = y_train
 
     # parameters
-    svmc = param['C']
-    svmd = param['D']
+    svm_c = param['C']
+    svm_d = param['D']
     err_loss = param['err']
     max_epoch = param['max_epoch']
 
@@ -257,8 +258,8 @@ def dual_l1dcd_test(x_train, y_train, param, label_id, label_num):
     # parameters
     # a_par = np.matmul(np.diag(y_data), x_data)
     q_par = np.linalg.norm(x_data, ord=2, axis=1)**2
-    m_par = svmd * np.ones(shape=size_dim, dtype=np.float64)
-    u_par = svmc
+    m_par = svm_d * np.ones(shape=size_dim, dtype=np.float64)
+    u_par = svm_c
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
     # one_par = np.ones(shape=size_data, dtype=np.float64)
 
@@ -356,8 +357,8 @@ def dual_l1dcd(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: dual coordinate descent with Random Permutation
     # reference: A Dual Coordinate Descent Method for Large-scale Linear SVM [Hsieh et al, 2008, ICML]
-    # fast and available for high dimentional data
-    # we add a L1 penalty (SVMD not zero) in order to get a sparse weight vector
+    # fast and available for high dimensional data
+    # we add a L1 penalty (SVM-D not zero) in order to get a sparse weight vector
     # it could take about 3 hours for training the whole field 'labelledField', if we set the err_loss to be 1e-6
     # maybe we could consider the shrinking to speed up. reference: [Hsieh et al, 2008, ICML]
 
@@ -368,8 +369,8 @@ def dual_l1dcd(x_train, y_train, param, label_id, label_num):
     y_data[:] = y_train
 
     # parameters
-    svmc = param['C']
-    svmd = param['D']
+    svm_c = param['C']
+    svm_d = param['D']
     err_loss = param['err']
     max_epoch = param['max_epoch']
 
@@ -383,8 +384,8 @@ def dual_l1dcd(x_train, y_train, param, label_id, label_num):
     q_par = np.zeros(shape=size_data, dtype=np.float64)
     for i_d in range(size_data):
         q_par[i_d] = np.dot(x_data[i_d], x_data[i_d])
-    m_par = svmd * np.ones(shape=size_dim, dtype=np.float64)
-    u_par = np.float64(svmc)
+    m_par = svm_d * np.ones(shape=size_dim, dtype=np.float64)
+    u_par = np.float64(svm_c)
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
 
     # initialize variables
@@ -454,7 +455,7 @@ def dual_dcd(x_train, y_train, param, label_id, label_num):
     # train model for each label
     # method: dual coordinate descent with Random Permutation
     # reference: A Dual Coordinate Descent Method for Large-scale Linear SVM [Hsieh et al, 2008, ICML]
-    # fast and available for high dimentional data
+    # fast and available for high dimensional data
 
     # train data
     x_data = np.ones(shape=(x_train.shape[0], x_train.shape[1] + 1), dtype=np.float64)
@@ -463,7 +464,7 @@ def dual_dcd(x_train, y_train, param, label_id, label_num):
     y_data[:] = y_train
 
     # parameters
-    svmc = param['C']
+    svm_c = param['C']
     err_loss = param['err']
     max_epoch = param['max_epoch']
 
@@ -478,11 +479,11 @@ def dual_dcd(x_train, y_train, param, label_id, label_num):
 
     # constants
     q_par = np.linalg.norm(x_data, ord=2, axis=1)**2
-    # d_par = np.zeros(shape=size_data, dtype=np.float64) + 1 / (2 * SVMC)
+    # d_par = np.zeros(shape=size_data, dtype=np.float64) + 1 / (2 * svm_c)
     d_par = np.zeros(shape=size_data, dtype=np.float64)
     q_par = q_par + d_par
     # u_par = np.inf
-    u_par = svmc
+    u_par = svm_c
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
 
     # initialize variables
@@ -549,8 +550,8 @@ def prim_admm(x_train, y_train, param, label_id, label_num):
     y_data[:] = y_train
 
     # parameters
-    svmc = param['C']
-    svmd = param['D']
+    svm_c = param['C']
+    svm_d = param['D']
     err_loss = param['err']
     max_epoch = param['max_epoch']
 
@@ -566,7 +567,7 @@ def prim_admm(x_train, y_train, param, label_id, label_num):
     # constants
     mu = 100
     nu = 100
-    c_half = svmc / 2
+    c_half = svm_c / 2
     a_par = np.matmul(np.diag(y_data), x_data)
     zero_par = np.zeros(shape=size_data, dtype=np.float64)
     one_par = np.ones(shape=size_data, dtype=np.float64)
@@ -598,7 +599,7 @@ def prim_admm(x_train, y_train, param, label_id, label_num):
         b_train = b_par1 * np.dot(b_par2, t_train + one_par - aw - mu * r_train)
         yb = y_data * b_train
         t_train = shrink(aw + yb + mu * r_train + (mu - 1) * one_par, mu)
-        z_train = shrink(w_train - nu * p_train, nu * svmd)
+        z_train = shrink(w_train - nu * p_train, nu * svm_d)
 
         r_train += (aw + yb - t_train - one_par) / mu
         p_train += (z_train - w_train) / nu
@@ -637,7 +638,7 @@ def prim_tf(x_train, y_train, param, label_id, label_num):
     y_data[:] = y_train
 
     # parameters
-    svmc = param['C']
+    svm_c = param['C']
     err_loss = param['err']
     max_epoch = param['max_epoch']
 
@@ -666,7 +667,7 @@ def prim_tf(x_train, y_train, param, label_id, label_num):
     # l1_loss = tf.reduce_sum(tf.abs(w_train))
     l1_loss = 0
     hinge_loss = tf.reduce_sum(tf.maximum(tf.zeros([size_data, 1]), 1 - y * y_raw))
-    svm_loss = regularization_loss + svmc * hinge_loss + l1_loss
+    svm_loss = regularization_loss + svm_c * hinge_loss + l1_loss
 
     # Optimizer
     # train_step = tf.train.GradientDescentOptimizer(0.01).minimize(svm_loss)

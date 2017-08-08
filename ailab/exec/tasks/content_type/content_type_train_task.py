@@ -4,10 +4,9 @@ from ailab.tasks.content_type.content_type_train import ContentTypeTrain
 
 def main():
     # class
-    a = ContentTypeTrain()
+    a = ContentTypeTrain(output_dir="../../../output/content_type")
 
-    a.connect({'host': '127.0.0.1', 'user': 'myaccount', 'passwd': 'mypassword',
-               'db': 'database', 'charset': 'utf8'})
+    a.connect('../../config/config.yaml')
 
     # algorithm
     a.algorithm('l1dcd')

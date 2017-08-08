@@ -8,7 +8,7 @@ class ContentTypeTrain(MultiTrain):
         MultiTrain.__init__(self)
 
         # not editable
-        self.__request = 'contentType'
+        self.__request = 'content_type'
         self.__output_dir = output_dir
 
     def train(self):
