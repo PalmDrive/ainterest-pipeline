@@ -108,7 +108,7 @@ ENV/
 /ailab/output/tmp/*
 
 # ailab config
-# /ailab/exec/config/*
+/ailab/exec/config/*
 
 # ailab test
 /ailab/test/*
