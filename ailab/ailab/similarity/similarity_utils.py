@@ -21,6 +21,18 @@ def test_connect(config=None):
     return config, connect_err
 
 
+def unicode_to_str(uni_list):
+    if not isinstance(uni_list, list):
+        return uni_list.encode('utf-8')
+
+    str_list = list()
+
+    for d in uni_list:
+        str_list.append(d.encode('utf-8'))
+
+    return str_list
+
+
 def recent_articles(config, total_num=None):
 
     # database
@@ -28,6 +40,10 @@ def recent_articles(config, total_num=None):
 
     # get raw articles and ids
     articles_raw, id_list, err = db.recent_articles(number=total_num)
+
+    # convert to UTF-8
+    articles_raw = unicode_to_str(articles_raw)
+    id_list = unicode_to_str(id_list)
 
     # if error
     if err is True:
@@ -193,17 +209,25 @@ def tagged_docs(articles_list, tags_list):
     # for many articles
     docs = list()
 
+    # if need extra articles
+    len_diff = len(tags_list) - len(articles_list)
+
+    # a new articles_list
+    articles_list_extend = list()
+
+    # copy
+    for d in articles_list:
+        articles_list_extend.append(d)
+
     # append empty articles
-    if len(tags_list) > len(articles_list):
-        len_diff = len(tags_list) - len(articles_list)
-        for d in range(len_diff):
-            articles_list.append([])
+    for d in range(len_diff):
+        articles_list_extend.append([])
 
     # for each article
     for i_d in range(len(tags_list)):
 
         # article
-        article = articles_list[i_d]
+        article = articles_list_extend[i_d]
 
         # article id
         tag_index = tags_list[i_d]
@@ -215,93 +239,6 @@ def tagged_docs(articles_list, tags_list):
         docs.append(doc)
 
     return docs
-
-
-def init_model(articles_list):
-
-    # create document tags
-    tags_list = auto_tags(extend=len(articles_list) * 2)
-
-    # create tagged documents
-    docs = tagged_docs(articles_list, tags_list)
-
-    # initialize a doc2vec model
-    model = Doc2Vec(size=300, window=20, min_count=2, workers=64, alpha=0.025, min_alpha=0.01)
-
-    # announcement
-    print('Model initialized.')
-
-    # begin a timer
-    time_st = time.time()
-
-    # build vocabulary
-    model.build_vocab(docs)
-
-    # finish
-    time_ed = time.time()
-
-    # announcement
-    print('Vocabulary built. Time: ' + str(time_ed - time_st) + ' s')
-
-    return model
-
-
-def train_model(articles_raw, id_list, model=None, id_list_old=None, epoch=2):
-
-    # jieba cut for raw articles
-    articles_list = jieba_cut(articles_raw)
-
-    # if None, initial a new model
-    if model is None:
-        model = init_model(articles_list)
-
-    # create document tags
-    tags_list = auto_tags(id_list=id_list, id_list_old=id_list_old)
-
-    # create tagged documents
-    docs = tagged_docs(articles_list, tags_list)
-
-    # show the total document number
-    print('Total document number: ' + str(len(id_list)))
-
-    # announcement
-    print('Training this model...')
-
-    # begin a timer
-    time_st = time.time()
-
-    # train
-    model.train(docs, total_examples=len(docs), epochs=epoch)
-
-    # finish
-    time_ed = time.time()
-
-    # announcement
-    print('Training finished. Epochs: ' + str(epoch) + '. Total time: ' + str(time_ed - time_st) + ' s')
-
-    return model
-
-
-def load_model(model_path):
-
-    # load a trained model
-    model = Doc2Vec.load(model_path)
-
-    # and corresponding id list
-    id_list = list()
-
-    # the path
-    id_path = model_path + '.ids'
-
-    # read all
-    with open(id_path, 'r') as f_read:
-        tmp = f_read.readlines()
-
-    # id list
-    for d in tmp:
-        id_list.append(d[:-1])
-
-    return model, id_list
 
 
 def most_similar_articles(sim_articles, id_list, thres):

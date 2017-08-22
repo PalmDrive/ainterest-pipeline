@@ -2,6 +2,7 @@
 import time
 import os
 import glob
+from gensim.models.doc2vec import Doc2Vec
 import ailab.similarity.similarity_utils as sim_util
 
 
@@ -30,7 +31,7 @@ class Similarity:
 
         return connect_err
 
-    def train(self, articles_raw, id_list, epoch=2):
+    def train(self, articles_raw, id_list):
 
         # python list
         if not isinstance(id_list, list):
@@ -40,8 +41,20 @@ class Similarity:
         if not isinstance(articles_raw, list):
             articles_raw = [articles_raw]
 
+        # articles list
+        articles_list = sim_util.jieba_cut(articles_raw)
+
         # the new id list should merge with the old one
         id_list_new = sim_util.merge_id(id_list, self.__id_list)
+
+        # create document tags
+        tags_list = sim_util.auto_tags(id_list=id_list, id_list_old=self.__id_list)
+
+        # create tagged documents
+        docs = sim_util.tagged_docs(articles_list, tags_list)
+
+        # train epoch
+        epoch = 2
 
         # old model. may also be None.
         old_model = self.__model
@@ -52,14 +65,56 @@ class Similarity:
             if len(id_list_new) > total_num:
                 print('WARNING! Reserved tags not enough.')
 
-        # train model
-        model = sim_util.train_model(articles_raw, id_list, model=old_model, id_list_old=self.__id_list, epoch=epoch)
+        # if no model, initialize one
+        if old_model is None:
 
-        # save this model to self
-        self.__model = model
+            # create document tags
+            tags_list_init = sim_util.auto_tags(extend=len(articles_list) * 2)
+
+            # create tagged documents
+            docs_init = sim_util.tagged_docs(articles_list, tags_list_init)
+
+            # initialize a doc2vec model
+            self.__model = Doc2Vec(size=300, window=10, min_count=2, workers=64, alpha=0.025, min_alpha=0.01, dm=0)
+
+            # announcement
+            print('Model initialized.')
+
+            # begin a timer
+            time_st = time.time()
+
+            # build vocabulary
+            self.__model.build_vocab(docs_init)
+
+            # finish
+            time_ed = time.time()
+
+            # announcement
+            print('Vocabulary built. Time: ' + str(time_ed - time_st) + ' s')
+
+            # change the epoch to a higher value
+            epoch = 20
+
+        # show the total document number
+        print('Total document number: ' + str(len(id_list)))
+
+        # announcement
+        print('Training this model...')
+
+        # begin a timer
+        time_st = time.time()
+
+        # train model
+        self.__model.train(docs, total_examples=len(docs), epochs=epoch)
+
+        # finish
+        time_ed = time.time()
+
+        # announcement
+        print('Training finished. Epochs: ' + str(epoch) + '. Total time: ' + str(time_ed - time_st) + ' s')
 
         # total number
-        total_num = model.corpus_count
+        total_num = self.__model.corpus_count
 
         # remove extra ids
         if len(id_list_new) > total_num:
@@ -76,7 +131,7 @@ class Similarity:
         articles_raw, id_list = sim_util.recent_articles(self.__config, total_num=total_num)
 
         # train a model
-        self.train(articles_raw, id_list, epoch=20)
+        self.train(articles_raw, id_list)
 
     def clear(self):
 
@@ -121,7 +176,24 @@ class Similarity:
 
     def load(self, model_path):
 
-        self.__model, self.__id_list = sim_util.load_model(model_path)
+        # load a trained model
+        self.__model = Doc2Vec.load(model_path)
+
+        # and corresponding id list
+        id_list = list()
+
+        # the path
+        id_path = model_path + '.ids'
+
+        # read all
+        with open(id_path, 'r') as f_read:
+            tmp = f_read.readlines()
+
+        # id list
+        for d in tmp:
+            id_list.append(d[:-1])
+
+        self.__id_list = id_list
 
     def __find_all_model(self, model_dir=None):
 
