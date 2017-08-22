@@ -301,3 +301,104 @@ class DB:
         err = False
 
         return articles_str, err
+
+    def recent_articles(self, number=None):
+        # load recent articles from mySQL server
+
+        # configuration
+        config = self.__config
+
+        # make a connection
+        try:  # if succeed
+            conn = pymysql.connect(host=config['host'], user=config['user'], passwd=config['passwd'],
+                                   db=config['db'], charset=config['charset'])
+            print('Successfully connected to the mySQL server.')
+
+        except pymysql.Error as error:
+            # if failed: print error message
+            code, message = error.args
+            print(code, message)
+            print('Connecting to the mySQL server failed. Invalid configuration.')
+
+            # return empty results
+            data0 = []
+            articles_str = []
+            err = True
+
+            return data0, articles_str, err
+
+        # get a cursor
+        cur = conn.cursor()
+
+        # announcement
+        print('Begin loading data...')
+
+        # begin a timer
+        time_st = time.time()
+
+        # select data from the mySQL server
+        request_format = "select id from medium where mediumType = 'article' order by createdAt desc;"
+        cur.execute(request_format)
+
+        # fetch data
+        data0 = cur.fetchall()
+
+        # end the timer
+        time_ed = time.time()
+
+        print('Successfully loaded basic data from the mySQL server. TIME: {0} s'.format(time_ed - time_st))
+
+        # if test mode
+        if TEST_MODE:
+            data0 = (data0[0],)
+
+        # select recent data
+        if number is not None:
+            if len(data0) > number:
+                data0 = data0[:number]
+
+        print('Total article number: ' + str(len(data0)))
+
+        # get article id
+        id_list = list()
+        for d in data0:
+            id_list.append(d[0])
+
+        # obtain articles via article ID
+        articles_str = []
+
+        print('loading articles...')
+        time.sleep(0.1)
+
+        # begin a progress bar
+        bar = progressbar.ProgressBar()
+
+        # load articles
+        for d in bar(id_list):
+
+            # request an article
+            cur.execute("select content from mediumContent where id='{0}'".format(d))
+
+            # fetch this article
+            tmp = cur.fetchall()
+
+            if not tmp == ():  # if exist
+                if tmp[0][0] is not None:  # if not empty
+                    articles_str.append(tmp[0][0])
+                else:
+                    articles_str.append('NULL')
+            else:
+                articles_str.append('NULL')
+
+        time.sleep(0.1)
+        print('Successfully loaded articles from the mySQL server.')
+
+        # close the cursor and the connection
+        cur.close()
+        conn.close()
+        print('mySQL server closed.')
+
+        # now everything is OK
+        err = False
+
+        return articles_str, id_list, err
