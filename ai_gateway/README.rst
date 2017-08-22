@@ -20,3 +20,7 @@ client请求
 //其中 type是分类类型, content 是文章string
 curl -H "Content-Type: application/json" -X GET -d '{"type":"field","content":"xyz"}' localhost:8080/api/classify
 ```
+```
+// similarity 检测
+curl -H "Content-Type: application/json" -X GET -d '{"content":"xyz", "id":"zdfsadfasdf"}' localhost:8080/api/similarity
+```
