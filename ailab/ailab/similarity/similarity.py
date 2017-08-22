@@ -188,12 +188,18 @@ class Similarity:
         # delete all other models as well as the id lists
         for d in file_name_all_to_remove:
             file_path = os.path.join(model_dir, d)
+
+            # model file
             os.remove(file_path)
-            os.remove(file_path + '.ids')
-            if os.path.exists(file_path + '.syn1neg.npy'):
-                os.remove(file_path + '.syn1neg.npy')
-            if os.path.exists(file_path + '.wv.syn0.npy'):
-                os.remove(file_path + '.wv.syn0.npy')
+
+            # other files
+            path_pattern = file_path + '.*'
+            path_all = glob.glob(path_pattern)
+
+            # delete them
+            for dd in path_all:
+                if os.path.exists(dd):
+                    os.remove(dd)
 
     def similar(self, articles_raw, id_list, thres=0.67):
 
