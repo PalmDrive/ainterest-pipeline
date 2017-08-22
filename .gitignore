@@ -106,6 +106,7 @@ ENV/
 /ailab/output/field/*
 /ailab/output/position/*
 /ailab/output/tmp/*
+/ailab/output/similarity/*
 
 # ailab config
 /ailab/exec/config/*
