@@ -36,5 +36,5 @@ tensorflow==1.2.1
 traitlets==4.3.2
 wcwidth==0.1.7
 Werkzeug==0.12.2
-PyYAML=3.12
-gensim=2.3.0
+PyYAML==3.12
+gensim==2.3.0
