@@ -4,5 +4,5 @@ from . import views
 
 urlpatterns = [
     url(r'^classify', views.classify, name='classify'),
-    url(r'^similarity', views.similarity, name='similarity'),
+    url(r'^similarity', views.duplicate, name='similarity'),
 ]

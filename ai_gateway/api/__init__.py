@@ -12,4 +12,5 @@ classifiers = {
 
 }
 
-similarity = Similarity(model_dir='../../../output/similarity')
+similarity = Similarity(model_dir='../ailab/output/similarity')
+similarity.load_newest()
