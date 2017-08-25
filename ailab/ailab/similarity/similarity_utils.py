@@ -242,7 +242,7 @@ def tagged_docs(articles_list, tags_list):
 
 
 def most_similar_articles(sim_articles, id_list, thres):
-
+    print (sim_articles)
     # if sim_articles is just one article with a weight
     if not isinstance(sim_articles, list):
 

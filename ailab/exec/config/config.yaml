@@ -1,7 +1,6 @@
----
 # configuration for a mySQL server
-host: '127.0.0.1'
-user: 'myaccount'
-passwd: 'mypassword'
-db: 'database'
-charset: 'specified'
+host: 119.254.97.101
+user: root
+passwd: P@sswordDB1
+db: ainterest_production
+charset: utf8mb4
