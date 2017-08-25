@@ -321,11 +321,11 @@ class DB:
             print('Connecting to the mySQL server failed. Invalid configuration.')
 
             # return empty results
-            data0 = []
             articles_str = []
+            id_list = []
             err = True
 
-            return data0, articles_str, err
+            return articles_str, id_list, err
 
         # get a cursor
         cur = conn.cursor()
@@ -402,3 +402,86 @@ class DB:
         err = False
 
         return articles_str, id_list, err
+
+    def recent_titles_simhash(self, number=None):
+        # load recent articles from mySQL server
+
+        # configuration
+        config = self.__config
+
+        # make a connection
+        try:  # if succeed
+            conn = pymysql.connect(host=config['host'], user=config['user'], passwd=config['passwd'],
+                                   db=config['db'], charset=config['charset'])
+            print('Successfully connected to the mySQL server.')
+
+        except pymysql.Error as error:
+            # if failed: print error message
+            code, message = error.args
+            print(code, message)
+            print('Connecting to the mySQL server failed. Invalid configuration.')
+
+            # return empty results
+            id_list = []
+            title_list = []
+            simhash_list = []
+            err = True
+
+            return id_list, title_list, simhash_list, err
+
+        # get a cursor
+        cur = conn.cursor()
+
+        # announcement
+        print('Begin loading data...')
+
+        # begin a timer
+        time_st = time.time()
+
+        # select data from the mySQL server
+        request_format = "select id, title, simhash from medium where mediumType = 'article' order by createdAt desc;"
+        cur.execute(request_format)
+
+        # fetch data
+        data0 = cur.fetchall()
+
+        # end the timer
+        time_ed = time.time()
+
+        print('Successfully loaded basic data from the mySQL server. TIME: {0} s'.format(time_ed - time_st))
+
+        # close the cursor and the connection
+        cur.close()
+        conn.close()
+        print('mySQL server closed.')
+
+        # if test mode
+        if TEST_MODE:
+            data0 = (data0[0],)
+
+        # select recent data
+        if number is not None:
+            if len(data0) > number:
+                data0 = data0[:number]
+
+        print('Total article number: ' + str(len(data0)))
+
+        # get id
+        id_list = list()
+        for d in data0:
+            id_list.append(d[0])
+
+        # get title
+        title_list = list()
+        for d in data0:
+            title_list.append(d[1])
+
+        # get title
+        simhash_list = list()
+        for d in data0:
+            simhash_list.append(d[2])
+
+        # now everything is OK
+        err = False
+
+        return id_list, title_list, simhash_list, err
