@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from ailab.db.db import DB
 from simhash import Simhash as sim
 from simhash import SimhashIndex
+from ailab.similarity.similarity_utils import jieba_cut_article
 import jieba
 
 
@@ -11,7 +12,7 @@ class Simhash(object):
     def __init__(self, config):
         self.config = config
         self.db = DB(self.config)
-        self.index = SimhashIndex([], k=3)
+        self.index = SimhashIndex([], k=5)
 
     def load_recent_simhash(self, num):
         id_list, _, simhash_list, err = self.db.recent_titles_simhash(num)
@@ -24,8 +25,9 @@ class Simhash(object):
 
     @classmethod
     def get_features(cls, s):
-        s = list(jieba.cut(s))
-        return s
+        s = jieba_cut_article(s)
+        ss = u' '.join(s)
+        return ss
 
     def calculate(self, article):
         return sim(self.get_features(article))

@@ -60,7 +60,7 @@ def jieba_cut_article(article_raw):
                    u'!', u'！', u'?', u'？', u'@', u'、', u'\t',
                    u':', u'：', u'/', u'\\', u'\r', u'…', u'(', u')',
                    u'（', u'）', u'{', u'}', u'[', u']', u'|',
-                   u'+', u'=', u'<', u'>', u'《', u'》']
+                   u'+', u'=', u'<', u'>', u'《', u'》', u'【', u'】', u'•']
 
     # if is NULL
     if article_raw == 'NULL':
