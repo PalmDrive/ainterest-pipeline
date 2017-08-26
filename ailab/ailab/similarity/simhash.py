@@ -1,3 +1,4 @@
+# encoding=utf-8
 from __future__ import absolute_import
 
 from ailab.db.db import DB
@@ -23,12 +24,11 @@ class Simhash(object):
 
     @classmethod
     def get_features(cls, s):
-        width = 3
         s = list(jieba.cut(s))
-        return [s[i:i + width] for i in range(max(len(s) - width + 1, 1))]
+        return s
 
     def calculate(self, article):
-        return sim(article)
+        return sim(self.get_features(article))
 
     def duplicate_or_not(self, article_id, article):
         ss = self.calculate(article)
