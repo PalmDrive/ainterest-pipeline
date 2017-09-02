@@ -18,8 +18,9 @@ html5lib==0.9999999
 idna==2.6
 ipython==5.4.1
 ipython-genutils==0.2.0
-jieba==0.38
+jieba==0.39
 Markdown==2.6.8
+matplotlib==2.0.2
 mock==2.0.0
 numpy==1.13.1
 pathlib2==2.3.0
@@ -30,7 +31,6 @@ progressbar==2.3
 prompt-toolkit==1.0.15
 protobuf==3.3.0
 ptyprocess==0.5.2
-py-look-for-timeouts==0.4
 Pygments==2.2.0
 PyMySQL==0.7.11
 pyparsing==2.2.0
