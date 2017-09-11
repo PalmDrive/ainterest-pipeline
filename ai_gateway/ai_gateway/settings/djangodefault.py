@@ -25,7 +25,7 @@ SECRET_KEY = 'yz)d@x4x4na+v7k0u09&w8fk+o4d+7^=q-ba(rf#7x8e+d*)u('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ailingual.cn:8080', 'ainterest-service-production.ailingual.cn:8080', 'ainterest-service-production.ailingual.cn']
 
 
 # Application definition
