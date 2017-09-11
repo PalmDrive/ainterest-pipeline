@@ -22,5 +22,5 @@ curl -H "Content-Type: application/json" -X GET -d '{"type":"field","content":"x
 ```
 ```
 // similarity 检测
-curl -H "Content-Type: application/json" -X GET -d '{"content":"xyz", "id":"zdfsadfasdf"}' localhost:8080/api/similarity
+curl -H "Content-Type: application/json" -X POST -d '{"content":"xyz", "id":"zdfsadfasdf"}' localhost:8080/api/similarity
 ```
