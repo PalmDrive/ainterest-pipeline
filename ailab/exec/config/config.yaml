@@ -1,5 +1,5 @@
 # configuration for a mySQL server
-host: 119.254.97.101
+host: ainterest-service-production.ailingual.cn
 user: root
 passwd: P@sswordDB1
 db: ainterest_production
