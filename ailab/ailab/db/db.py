@@ -485,3 +485,78 @@ class DB:
         err = False
 
         return id_list, title_list, simhash_list, err
+
+    def update_psimhash(self, id_list, hash_list):
+
+        # configuration
+        config = self.__config
+
+        # make a connection
+        try:  # if succeed
+            conn = pymysql.connect(host=config['host'], user=config['user'], passwd=config['passwd'],
+                                   db=config['db'], charset=config['charset'])
+            print('Successfully connected to the mySQL server.')
+
+        except pymysql.Error as error:
+            # if failed: print error message
+            code, message = error.args
+            print(code, message)
+            print('Connecting to the mySQL server failed. Invalid configuration.')
+
+            # return empty results
+            err = True
+
+            return err
+
+        # get a cursor
+        cur = conn.cursor()
+
+        # for only one data
+        if not isinstance(id_list, list):
+            print('Updating psimhash for id: ' + id_list)
+            id_list = [id_list]
+            hash_list = [hash_list]
+        else:
+            print('Updating psimhash for all ids...')
+
+        # begin a timer
+        time_st = time.time()
+
+        # begin a progress bar
+        bar = progressbar.ProgressBar()
+
+        # for all ids:
+        for i_d in bar(range(len(id_list))):
+
+            # id and psimhash string
+            id_str = id_list[i_d]
+            psimhash = hash_list[i_d]
+
+            # announcement
+            print('Writing psimhash for id: ' + id_str)
+
+            # write psimhash to the mySQL server
+            if psimhash is None:
+                psimhash_str = 'null'
+            else:
+                psimhash_str = str(psimhash)
+
+            write_format = "update medium set psimhash = {0} where id = '{1}';".format(psimhash_str, id_str)
+            cur.execute(write_format)
+
+        # finish
+        time_ed = time.time()
+
+        # announcement
+        print('Successfully updated psimhash for ids in the mySQL server. TIME: {0} s'.format(time_ed - time_st))
+
+        # close the cursor and the connection
+        conn.commit()
+        cur.close()
+        conn.close()
+        print('mySQL server closed.')
+
+        # now everything is OK
+        err = False
+
+        return err
