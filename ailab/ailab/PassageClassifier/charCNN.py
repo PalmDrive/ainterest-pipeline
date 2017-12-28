@@ -3,8 +3,8 @@ VALIDATION_SPLIT = 0.2
 
 import pandas as pd
 import jieba
-
-data = pd.read_msgpack('../content_and_label')
+content_and_label_path = '../content_and_label'
+data = pd.read_msgpack(content_and_label_path)
 
 # load in stopwords and define passage segmentation function
 stopwords = []
