@@ -4,6 +4,7 @@
 - [x] Word-embedding Convolutional neural network model building and some basic analysing graph: **wordEmCNN.py**
 - [x] scripts for utils include batch loader, chinese2character converter etc. : **utils.py**
 - [x] Script for annotation: **annotate.py**
+- [x] **cnn_runner.ipynb** can be executed on jupyter notebook
 
 Project Description:
 

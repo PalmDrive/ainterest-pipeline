@@ -3,10 +3,12 @@ import pickle
 ## python script from annotating passages.
 import os, json
 from IPython.display import clear_output
-try: os.mkdir('./datafiles/biaozhu/')
+biaozhufilepath = './datafiles/biaozhu/'
+passage_path = './passage.txt'
+try: os.mkdir(biaozhufilepath)
 except: pass
 def getContentLabelPairs():
-    
+
 
     def f(x, other=''):
         return {'1' : 'ad',
@@ -16,11 +18,11 @@ def getContentLabelPairs():
     try:
         with open('./log.pickle', 'rb') as f:
             line = pickle.load(f)
-    except: 
+    except:
         line = int(input("the line when you left(press 0 if you want to start from the beginning)\n"))
-    with open('./passage.txt') as file:
+    with open(passage_path) as file:
         content = file.read().split('\n\n')
-        content = content[line+1:]    
+        content = content[line+1:]
 
     for num in range(len(content)):
         passage = content[num]
@@ -37,12 +39,12 @@ def getContentLabelPairs():
             return content_label_pairs
         elif arg == '1':
             content_label_pairs[passage] = 'ad'
-        elif arg == '2': 
+        elif arg == '2':
             content_label_pairs[passage] = 'non-ad'
         else:
             content_label_pairs[passage] = arg
         os.system('clear')
-filename = 'test1.json'        
+filename = 'test1.json'
 fileIsValid = os.path.exists(filename)
 if fileIsValid:
     append_write = 'w' # append if already exists
@@ -50,10 +52,10 @@ if fileIsValid:
 else:
     append_write = 'w' # make a new file if not
 if __name__ == '__main__':
-    
+
     content = getContentLabelPairs()
     if not fileIsValid:
-        with open('test1.json', append_write) as f:           
+        with open(filename, append_write) as f:
             json.dump(content, f)
     else:
         with open(filename, append_read) as f:
@@ -62,4 +64,3 @@ if __name__ == '__main__':
         print('Number of Passages is {0}'.format(len(list(z.values()))))
         with open(filename, append_write) as f:
             json.dump(z, f)
-            

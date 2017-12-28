@@ -1,18 +1,18 @@
 import numpy as np
 
 class DataGenerator(object):
-    
-    def __init__(self, batch_size = 50, shuffle=True):
+
+    def __init__(self, batch_size = 50, shuffle=True, filepath):
         """
         initilization
         """
         self.num = 450000
         self.dim = 3000
         self.y_dim = 5
-        self.datafile = "/Users/zijiaoyang/Desktop/junlin/datafiles/fileTrain/"
+        self.datafile = filepath
         self.batch_size=batch_size
         self.shuffle=shuffle
-    
+
     def __get_order(self, list_ids):
         """
         shuffle the indexes
@@ -29,13 +29,13 @@ class DataGenerator(object):
         X = np.empty((self.batch_size, self.dim))
         y = np.empty((self.batch_size, self.y_dim))
 
-        for i, id in enumerate(list_ids):  
-            
+        for i, id in enumerate(list_ids):
+
             X[i,:] = np.load(self.datafile + id + ".npy")
             y[i] = labels[id]
         return X, y
 
-    
+
     def generate(self, labels, list_ids):
         """
         generate batches of samples
@@ -46,7 +46,7 @@ class DataGenerator(object):
             imax = int(len(index)/self.batch_size)
             for i in range(imax):
                 list_ids_temp = [list_ids[k] for k in index[i*self.batch_size:(i+1)*self.batch_size]]
-                
+
                 X, y = self.__data_generation(labels, list_ids_temp)
 
                 yield [X] *3, y
@@ -61,23 +61,23 @@ def sparsify(y, num_class):
 import pandas as pd
 import jieba
 
-# load in preprocessed data (a Pandas Dataframe: with N rows of samples and 2 columns comprised 
+# load in preprocessed data (a Pandas Dataframe: with N rows of samples and 2 columns comprised
 # of "content" and "label")
 data = pd.read_msgpack('../content_and_label')
 
 # load in stopwords and define passage segmentation functionstopwords = []
-# stop_words.txt could be found 
+# stop_words.txt could be found
 with open('../stop_words.txt', 'rb') as f:
     stopwords = f.read().decode('gbk').splitlines()
 
 import re
 # after segmentation, converting to pinyin and ignore speical symbols
 def passageSeg(passage):
-    ''' 
+    '''
     Remove stopwords and \\n s, make segementation
-    Args: 
+    Args:
         passage: a string of single passage
-    Return: 
+    Return:
         a string of segmentation
     '''
     clean = []
@@ -86,8 +86,8 @@ def passageSeg(passage):
     words = jieba.cut(passage, cut_all=False)
     for word in words:
         if word not in stopwords:
-             clean.append(word)   
-    return ' '.join(clean)        
+             clean.append(word)
+    return ' '.join(clean)
 
 
 data = data.dropna(subset=['content'])
@@ -124,7 +124,7 @@ all_letters = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>
 
 n_letters = len(all_letters)
 
-      
+
 def letterToIndex(letter):
     """
     'c' -> 2
@@ -134,9 +134,9 @@ def letterToIndex(letter):
 
 def sets2tensors(clean_train, n_letters=n_letters, MAX_SEQUENCE_LENGTH=1000):
     """
-    From lists of cleaned passages to np.array with shape(len(train), 
+    From lists of cleaned passages to np.array with shape(len(train),
         max_sequence_length, len(dict))
-    Arg: 
+    Arg:
         obviously
     """
     m = len(clean_train)
@@ -149,7 +149,7 @@ def sets2tensors(clean_train, n_letters=n_letters, MAX_SEQUENCE_LENGTH=1000):
             if letter != -1:
                 x_data[ix][no][letter_index]  = 1
             else:
-                continue            
+                continue
     return x_data
 
 def to_cat(labels, num_class, start):

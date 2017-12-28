@@ -8,17 +8,18 @@ data = pd.read_msgpack('../content_and_label')
 
 # load in stopwords and define passage segmentation function
 stopwords = []
-with open('../stop_words.txt', 'rb') as f:
+stop_words_path = '../stop_words.txt'
+with open(stop_words_path, 'rb') as f:
     stopwords = f.read().decode('gbk').splitlines()
 
 import re
 # after segmentation, converting to pinyin and ignore speical symbols
 def passageSeg(passage):
-    ''' 
+    '''
     Remove stopwords and \\n s, make segementation
-    Args: 
+    Args:
         passage: a string of single passage
-    Return: 
+    Return:
         a string of segmentation
     '''
     clean = []
@@ -27,8 +28,8 @@ def passageSeg(passage):
     words = jieba.cut(passage, cut_all=False)
     for word in words:
         if word not in stopwords:
-             clean.append(word)   
-    return ' '.join(clean)        
+             clean.append(word)
+    return ' '.join(clean)
 
 
 data = data.dropna(subset=['content'])
@@ -76,7 +77,7 @@ all_letters = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>
 
 n_letters = len(all_letters)
 
-      
+
 def letterToIndex(letter):
     """
     'c' -> 2
@@ -86,9 +87,9 @@ def letterToIndex(letter):
 
 def sets2tensors(clean_train, n_letters=n_letters, MAX_SEQUENCE_LENGTH=1000):
     """
-    From lists of cleaned passages to np.array with shape(len(train), 
+    From lists of cleaned passages to np.array with shape(len(train),
         max_sequence_length, len(dict))
-    Arg: 
+    Arg:
         obviously
     """
     m = len(clean_train)
@@ -101,7 +102,7 @@ def sets2tensors(clean_train, n_letters=n_letters, MAX_SEQUENCE_LENGTH=1000):
             if letter != -1:
                 x_data[ix][no][letter_index]  = 1
             else:
-                continue            
+                continue
     return x_data
 
 def to_cat(labels, num_class, start):
@@ -137,7 +138,7 @@ print(x_train.shape, x_val.shape, y_train.shape, y_val.shape)
 %reload_ext autoreload
 %autoreload -l
 
-## Model 
+## Model
 num_classes = 2
 n_letters = 70
 from keras.models import Sequential, Model
@@ -153,11 +154,11 @@ for kw in (3, 4, 5):    # kernel sizes
     inputs.append(input1)
     input1 = Conv1D(32, kw, padding='valid', activation='relu',
                     strides=1)(input1)
-    
+
     input1 = GlobalMaxPool1D()(input1)
     submodels.append(input1)
-    
-    
+
+
 model = concatenate(submodels)
 #big_model.add(Merge(submodels, mode="concat"))
 model = Dense(64, activation='relu')(model)
